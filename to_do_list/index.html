@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#28a745">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="To Do">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+
+<link rel="apple-touch-icon" sizes="180x180" href="/records/todo_list/icon.png">
+<link rel="icon" type="image/png" href="/records/todo_list/icon.png">
+
+<title>바니의 투두리스트</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+<style>
+:root {
+    --primary: #28a745;
+    --bg: #f0f2f5;
+    --card-bg: #ffffff;
+    --someday: #6f42c1;
+    --done-blue: #007bff;
+    --border: #e6e8ee;
+    --text: #333;
+    --sub: #999;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    background: var(--bg);
+    min-height: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg);
+    margin: 0;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    color: var(--text);
+    min-height: 100vh;
+}
+
+button, input {
+    font-family: inherit;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 20px;
+    align-items: start;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 22px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #444;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+    font-weight: 800;
+}
+
+input[type="text"] {
+    background: #fff;
+    outline: none;
+}
+
+.date-controller {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    background: #f0f0f0;
+    border: none;
+    padding: 7px 12px;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.current-date-text {
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 1.2rem;
+    min-width: 120px;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+
+.date-picker-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+#datePicker {
+    position: absolute;
+    opacity: 0;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.cal-icon {
+    font-size: 1.35rem;
+}
+
+.today-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 7px 12px;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.backup-zone {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    flex-wrap: wrap;
+}
+
+.backup-btn {
+    flex: 1;
+    min-width: 90px;
+    font-size: 0.75rem;
+    padding: 9px 10px;
+    border-radius: 11px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.merge-btn {
+    background: #f0edff;
+    color: var(--someday);
+}
+
+.overwrite-btn {
+    background: #fff0f0;
+    color: #d94848;
+}
+
+.someday-title {
+    color: var(--someday) !important;
+    border-bottom-color: #f3e5f5 !important;
+}
+
+.someday-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background: #fdfbff;
+    border: 1px solid #eee;
+    border-radius: 13px;
+    margin-bottom: 8px;
+    cursor: grab;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.someday-text {
+    flex: 1;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 8px;
+    border-bottom: 1px solid #f9f9f9;
+    font-size: 0.95rem;
+}
+
+.todo-text {
+    flex: 1;
+    margin-left: 12px;
+    word-break: break-word;
+}
+
+.todo-text.done {
+    text-decoration: line-through;
+    color: #bbb;
+}
+
+.del-btn {
+    background: none;
+    border: none;
+    opacity: 0.35;
+    cursor: pointer;
+    margin-left: auto;
+    font-size: 1rem;
+}
+
+.weekly-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.day-column {
+    background: #f9f9f9;
+    border-radius: 15px;
+    padding: 12px;
+    min-height: 180px;
+    border: 2px solid transparent;
+}
+
+.day-header {
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+}
+
+.day-header.sun { color: #ff4d4d; }
+.day-header.sat { color: #007bff; }
+
+.mini-todo {
+    font-size: 0.75rem;
+    background: white;
+    margin-bottom: 5px;
+    padding: 6px 8px;
+    border-radius: 7px;
+    border-left: 4px solid #ddd;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.mini-todo.done {
+    border-left-color: var(--primary);
+    color: #bbb;
+    text-decoration: line-through;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.cal-day {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 11px;
+    min-height: 90px;
+    padding: 8px;
+}
+
+.cal-num {
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+    color: #888;
+}
+
+.cal-content {
+    font-size: 0.65rem;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.cal-content.done {
+    text-decoration: line-through;
+    color: var(--done-blue) !important;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.month-label {
+    color: var(--primary);
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-left: 10px;
+}
+
+#importMergeFile,
+#importOverwriteFile {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .weekly-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .day-column {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 520px) {
+    body {
+        padding: 10px;
+        padding-top: max(10px, env(safe-area-inset-top));
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    .card {
+        padding: 16px;
+        border-radius: 20px;
+    }
+
+    .weekly-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-grid {
+        gap: 4px;
+    }
+
+    .cal-day {
+        min-height: 70px;
+        padding: 5px;
+    }
+
+    .cal-content {
+        font-size: 0.58rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="dashboard">
+    <div class="left-panel">
+        <div class="card">
+            <h2>✍️ 할 일 기록</h2>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="todoInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid #eee; font-size:0.95rem;" placeholder="기록해볼까?">
+                <button onclick="addTodo()" style="background:var(--primary); color:white; border:none; border-radius:12px; padding:0 15px; font-weight:bold; cursor:pointer;">추가</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="date-controller">
+                <button class="nav-btn" onclick="changeDate(-1)">◀</button>
+                <span id="targetDateText" class="current-date-text"></span>
+                <div class="date-picker-wrapper">
+                    <span class="cal-icon">📅</span>
+                    <input type="date" id="datePicker" onchange="jumpToDate(this.value)">
+                </div>
+                <button class="nav-btn" onclick="changeDate(1)">▶</button>
+                <button class="today-btn" onclick="goToday()">오늘</button>
+            </div>
+            <div id="dailyList" style="margin-top:15px;"></div>
+        </div>
+
+        <div class="backup-zone">
+            <button class="backup-btn" onclick="exportData()">💾 백업</button>
+            <button class="backup-btn merge-btn" onclick="document.getElementById('importMergeFile').click()">🔀 병합</button>
+            <button class="backup-btn overwrite-btn" onclick="document.getElementById('importOverwriteFile').click()">📂 덮어쓰기</button>
+
+            <input type="file" id="importMergeFile" accept=".json" onchange="mergeData(event)">
+            <input type="file" id="importOverwriteFile" accept=".json" onchange="overwriteData(event)">
+        </div>
+
+        <div class="card">
+            <h2 class="someday-title">🕶️ 나중에 할 일</h2>
+            <div style="display:flex; gap:5px; margin-bottom:15px;">
+                <input type="text" id="somedayInput" style="flex:1; padding:10px; border-radius:10px; border:1px solid #eee; font-size:0.85rem;" placeholder="나중에 쿨하게 처리할 일!">
+                <button onclick="addSomeday()" style="background:var(--someday); color:white; border:none; border-radius:10px; padding:0 12px; font-size:0.85rem; cursor:pointer;">등록</button>
+            </div>
+            <div id="somedayList"></div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="card">
+            <h2>🗓️ 이번 주 대쉬보드</h2>
+            <div class="weekly-grid" id="weeklyGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>🌙 월간 캘린더 <span id="calendarMonthLabel" class="month-label"></span></h2>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let todos = JSON.parse(localStorage.getItem('bunnyTodos') || '[]');
+let somedayList = JSON.parse(localStorage.getItem('bunnySomeday') || '[]');
+let viewDate = new Date();
+
+const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+window.onload = () => {
+    normalizeData();
+    renderAll();
+    initSortable();
+
+    document.getElementById('todoInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addTodo();
+    });
+
+    document.getElementById('somedayInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addSomeday();
+    });
+};
+
+function save() {
+    localStorage.setItem('bunnyTodos', JSON.stringify(todos));
+    localStorage.setItem('bunnySomeday', JSON.stringify(somedayList));
+}
+
+function normalizeData() {
+    todos = todos.map(t => ({
+        id: t.id || Date.now() + Math.random(),
+        text: t.text || '',
+        completed: Boolean(t.completed),
+        dateString: t.dateString || new Date(t.timestamp || Date.now()).toDateString(),
+        timestamp: t.timestamp || new Date(t.dateString || Date.now()).getTime()
+    }));
+
+    somedayList = somedayList.map(s => ({
+        id: s.id || Date.now() + Math.random(),
+        text: s.text || ''
+    }));
+
+    save();
+}
+
+function initSortable() {
+    const el = document.getElementById('somedayList');
+    if (!el || !window.Sortable) return;
+
+    Sortable.create(el, {
+        animation: 150,
+        onEnd: function() {
+            const newOrder = [];
+            document.querySelectorAll('.someday-item').forEach(item => {
+                const id = Number(item.getAttribute('data-id'));
+                const found = somedayList.find(s => Number(s.id) === id);
+                if (found) newOrder.push(found);
+            });
+            somedayList = newOrder;
+            save();
+        }
+    });
+}
+
+function addSomeday() {
+    const input = document.getElementById('somedayInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    somedayList.push({
+        id: Date.now(),
+        text
+    });
+
+    save();
+    input.value = '';
+    renderSomeday();
+}
+
+function deleteSomeday(id) {
+    somedayList = somedayList.filter(s => s.id !== id);
+    save();
+    renderSomeday();
+}
+
+function renderSomeday() {
+    const list = document.getElementById('somedayList');
+
+    list.innerHTML = somedayList.map(s => `
+        <div class="someday-item" data-id="${s.id}">
+            <span class="someday-text">${escapeHtml(s.text)}</span>
+            <button class="del-btn" onclick="deleteSomeday(${s.id})">🗑️</button>
+        </div>
+    `).join('') || '<div style="text-align:center; color:#ccc; font-size:0.75rem;">나중에 할 일을 쿨하게 적어봐!</div>';
+}
+
+function exportData() {
+    const data = {
+        app: 'Bunny Todo List',
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        todos,
+        somedayList
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bunny_todo_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function getImportedData(parsed) {
+    if (!parsed) return null;
+
+    return {
+        todos: Array.isArray(parsed.todos) ? parsed.todos : [],
+        somedayList: Array.isArray(parsed.somedayList) ? parsed.somedayList : []
+    };
+}
+
+function normalizeImportedData(data) {
+    const importedTodos = data.todos.map(t => ({
+        id: t.id || Date.now() + Math.random(),
+        text: t.text || '',
+        completed: Boolean(t.completed),
+        dateString: t.dateString || new Date(t.timestamp || Date.now()).toDateString(),
+        timestamp: t.timestamp || new Date(t.dateString || Date.now()).getTime()
+    }));
+
+    const importedSomeday = data.somedayList.map(s => ({
+        id: s.id || Date.now() + Math.random(),
+        text: s.text || ''
+    }));
+
+    return {
+        todos: importedTodos,
+        somedayList: importedSomeday
+    };
+}
+
+function makeTodoKey(todo) {
+    return `${String(todo.text || '').trim().toLowerCase()}::${todo.dateString || ''}`;
+}
+
+function makeSomedayKey(item) {
+    return String(item.text || '').trim().toLowerCase();
+}
+
+function mergeData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+        try {
+            const parsed = JSON.parse(e.target.result);
+            const raw = getImportedData(parsed);
+
+            if (!raw) {
+                alert("병합할 수 있는 백업 파일이 아니야 ㅠㅠ");
+                return;
+            }
+
+            if (!confirm("현재 기록은 유지하고, 이 백업 파일의 투두를 합칠까?")) return;
+
+            const imported = normalizeImportedData(raw);
+
+            let addedTodos = 0;
+            let mergedTodos = 0;
+            const todoMap = new Map();
+
+            todos.forEach(t => {
+                todoMap.set(makeTodoKey(t), t);
+            });
+
+            imported.todos.forEach(incoming => {
+                const key = makeTodoKey(incoming);
+                const existing = todoMap.get(key);
+
+                if (existing) {
+                    todoMap.set(key, {
+                        ...existing,
+                        completed: Boolean(existing.completed || incoming.completed),
+                        timestamp: Math.min(Number(existing.timestamp || Date.now()), Number(incoming.timestamp || Date.now())),
+                        dateString: existing.dateString || incoming.dateString
+                    });
+                    mergedTodos++;
+                } else {
+                    todoMap.set(key, incoming);
+                    addedTodos++;
+                }
+            });
+
+            let addedSomeday = 0;
+            let mergedSomeday = 0;
+            const somedayMap = new Map();
+
+            somedayList.forEach(s => {
+                somedayMap.set(makeSomedayKey(s), s);
+            });
+
+            imported.somedayList.forEach(incoming => {
+                const key = makeSomedayKey(incoming);
+
+                if (somedayMap.has(key)) {
+                    mergedSomeday++;
+                } else {
+                    somedayMap.set(key, incoming);
+                    addedSomeday++;
+                }
+            });
+
+            todos = Array.from(todoMap.values()).sort((a, b) => Number(b.timestamp || b.id) - Number(a.timestamp || a.id));
+            somedayList = Array.from(somedayMap.values());
+
+            save();
+            renderAll();
+
+            alert(`병합 완료! 할 일 ${addedTodos}개, 나중에 할 일 ${addedSomeday}개 추가했어.`);
+        } catch (err) {
+            alert("파일을 병합하는 중 문제가 생겼어 ㅠㅠ");
+        }
+
+        event.target.value = '';
+    };
+
+    reader.readAsText(file);
+}
+
+function overwriteData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+        try {
+            const parsed = JSON.parse(e.target.result);
+            const raw = getImportedData(parsed);
+
+            if (!raw) {
+                alert("불러올 수 있는 백업 파일이 아니야 ㅠㅠ");
+                return;
+            }
+
+            if (!confirm("덮어쓰면 현재 투두가 백업 파일 내용으로 교체돼. 계속할까?")) return;
+
+            const imported = normalizeImportedData(raw);
+
+            todos = imported.todos;
+            somedayList = imported.somedayList;
+
+            save();
+            renderAll();
+
+            alert("덮어쓰기 완료!");
+        } catch (err) {
+            alert("파일 확인해줘 ㅠㅠ");
+        }
+
+        event.target.value = '';
+    };
+
+    reader.readAsText(file);
+}
+
+function jumpToDate(dateVal) {
+    if (!dateVal) return;
+    viewDate = new Date(dateVal + 'T00:00:00');
+    renderAll();
+}
+
+function changeDate(step) {
+    viewDate.setDate(viewDate.getDate() + step);
+    renderAll();
+}
+
+function goToday() {
+    viewDate = new Date();
+    renderAll();
+}
+
+function addTodo() {
+    const input = document.getElementById('todoInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const date = new Date(viewDate);
+
+    todos.unshift({
+        id: Date.now(),
+        text,
+        completed: false,
+        dateString: date.toDateString(),
+        timestamp: date.getTime()
+    });
+
+    save();
+    input.value = '';
+    renderAll();
+}
+
+function toggleTodo(id) {
+    todos = todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+    save();
+    renderAll();
+}
+
+function deleteTodo(id) {
+    if (!confirm("삭제할까?")) return;
+    todos = todos.filter(t => t.id !== id);
+    save();
+    renderAll();
+}
+
+function renderAll() {
+    document.getElementById('targetDateText').innerText = `${viewDate.getFullYear()}.${viewDate.getMonth()+1}.${viewDate.getDate()}`;
+    document.getElementById('calendarMonthLabel').innerText = `${monthNames[viewDate.getMonth()]}, ${viewDate.getFullYear()}`;
+
+    const dailyList = document.getElementById('dailyList');
+    const daily = todos.filter(t => t.dateString === viewDate.toDateString());
+
+    dailyList.innerHTML = daily.map(t => `
+        <div class="todo-item">
+            <input type="checkbox" ${t.completed ? 'checked' : ''} onclick="toggleTodo(${t.id})">
+            <span class="todo-text ${t.completed ? 'done' : ''}">${escapeHtml(t.text)}</span>
+            <button class="del-btn" onclick="deleteTodo(${t.id})">🗑️</button>
+        </div>
+    `).join('') || '<div style="text-align:center; color:#ccc; font-size:0.8rem; padding:10px;">기록 없음</div>';
+
+    renderSomeday();
+
+    const weeklyGrid = document.getElementById('weeklyGrid');
+    weeklyGrid.innerHTML = '';
+
+    const sun = new Date(viewDate);
+    sun.setDate(viewDate.getDate() - viewDate.getDay());
+
+    for (let i = 0; i < 7; i++) {
+        const tempD = new Date(sun);
+        tempD.setDate(sun.getDate() + i);
+
+        const dayTodos = todos.filter(t => t.dateString === tempD.toDateString());
+        const isSelected = tempD.toDateString() === viewDate.toDateString();
+
+        weeklyGrid.innerHTML += `
+            <div class="day-column" style="${isSelected ? 'border-color:var(--primary); background:#fff;' : ''}">
+                <div class="day-header ${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}">${dayNames[i]} (${tempD.getDate()})</div>
+                ${dayTodos.map(t => `<div class="mini-todo ${t.completed ? 'done' : ''}">${escapeHtml(t.text)}</div>`).join('')}
+            </div>
+        `;
+    }
+
+    const calendarGrid = document.getElementById('calendarGrid');
+    calendarGrid.innerHTML = '';
+
+    const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+    const lastDay = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
+
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        calendarGrid.innerHTML += `<div class="cal-day" style="background:#f0f2f5; border:none;"></div>`;
+    }
+
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+        const tempD = new Date(viewDate.getFullYear(), viewDate.getMonth(), i);
+        const dayTodos = todos.filter(t => t.dateString === tempD.toDateString());
+        const isSelected = tempD.toDateString() === viewDate.toDateString();
+
+        calendarGrid.innerHTML += `
+            <div class="cal-day" style="${isSelected ? 'background:#e8f5e9; border-color:var(--primary);' : ''}">
+                <div class="cal-num">${i}</div>
+                ${dayTodos.map(t => `<div class="cal-content ${t.completed ? 'done' : ''}">• ${escapeHtml(t.text)}</div>`).join('')}
+            </div>
+        `;
+    }
+}
+
+function escapeHtml(text) {
+    return String(text || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+</script>
+
+</body>
+</html>
