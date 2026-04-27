@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Save Log">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="링크와 메모를 빠르게 저장하고 태그로 다시 찾는 개인 Save Log">
+<title>Save Log 📥</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+
+:root {
+    --primary: #6c5ce7;
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --text: #2d3436;
+    --sub: #8a8f98;
+    --border: #e6e8ee;
+    --kakao: #fee500;
+    --danger: #ff6b6b;
+    --pin: #ff922b;
+    --star: #ffc107;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html {
+    min-height: 100%;
+    background: var(--bg);
+}
+
+body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    color: var(--text);
+    min-height: 100vh;
+}
+
+button, input, textarea {
+    font-family: inherit;
+}
+
+.container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-bottom: 140px;
+}
+
+.header {
+    background: var(--card);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    margin-bottom: 14px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+h1 {
+    font-size: 1.35rem;
+    margin: 0;
+    font-weight: 800;
+}
+
+.backup-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.small-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 7px 10px;
+    background: #eef0f4;
+    font-weight: 700;
+    font-size: 0.72rem;
+    cursor: pointer;
+}
+
+.merge-btn {
+    background: #f0edff;
+    color: var(--primary);
+}
+
+.overwrite-btn {
+    background: #fff0f0;
+    color: #d94848;
+}
+
+.search-box {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+}
+
+.search-box input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    outline: none;
+    background: #fff;
+}
+
+.clear-btn {
+    border: none;
+    border-radius: 14px;
+    background: #dfe3ea;
+    padding: 0 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.hint {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--sub);
+    line-height: 1.4;
+}
+
+.filter-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-top: 14px;
+}
+
+.tab-btn {
+    border: none;
+    border-radius: 12px;
+    padding: 9px 4px;
+    background: #eef0f4;
+    color: #59606b;
+    font-weight: 800;
+    font-size: 0.74rem;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.summary-box {
+    display: none;
+    background: white;
+    border-radius: 18px;
+    padding: 15px;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.035);
+}
+
+.summary-box.show { display: block; }
+
+.summary-title {
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.summary-card {
+    background: #f8f9fb;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.summary-label {
+    font-size: 0.75rem;
+    color: var(--sub);
+    font-weight: 800;
+}
+
+.summary-value {
+    margin-top: 4px;
+    font-weight: 900;
+    font-size: 1.15rem;
+}
+
+.top-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.empty {
+    text-align: center;
+    color: var(--sub);
+    padding: 40px 20px;
+    background: white;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.save-item {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 15px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.035);
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+.save-item.pinned {
+    border: 2px solid rgba(255,146,43,0.35);
+}
+
+.meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: var(--sub);
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+.actions {
+    display: flex;
+    gap: 7px;
+    white-space: nowrap;
+    align-items: center;
+}
+
+.icon-action {
+    border: none;
+    background: #f4f5f8;
+    border-radius: 9px;
+    padding: 4px 7px;
+    cursor: pointer;
+    font-size: 0.82rem;
+}
+
+.icon-action.active.star { background: #fff8db; }
+.icon-action.active.pin { background: #fff0df; }
+
+.action {
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.action.edit { color: var(--primary); }
+.action.delete { color: var(--danger); }
+
+.preview {
+    display: block;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f8f9fb;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.preview-img-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    overflow: hidden;
+}
+
+.preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.preview-body {
+    padding: 12px;
+}
+
+.preview-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.preview-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.preview-url {
+    margin-top: 5px;
+    font-size: 0.74rem;
+    color: var(--sub);
+    word-break: break-all;
+}
+
+.content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.55;
+    font-size: 0.98rem;
+}
+
+.content a {
+    color: #0984e3;
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.tag {
+    background: #f0edff;
+    color: var(--primary);
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.info-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    color: var(--sub);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.edit-area {
+    display: none;
+    margin-top: 12px;
+    background: #f8f9fb;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.edit-area textarea,
+.edit-area input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 11px;
+    font-size: 0.9rem;
+    outline: none;
+    margin-bottom: 8px;
+    background: #fff;
+}
+
+.edit-area textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.edit-save-btn {
+    width: 100%;
+    border: none;
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
+    padding: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.input-area {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 10px 12px max(14px, env(safe-area-inset-bottom));
+    background: rgba(240,242,245,0.92);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+.input-inner {
+    background: white;
+    border-radius: 18px;
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+}
+
+#quickInput {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    max-height: 120px;
+    min-height: 42px;
+    padding: 11px 10px;
+    font-size: 1rem;
+    line-height: 1.45;
+    background: #fff;
+}
+
+.send-btn {
+    width: 58px;
+    border: none;
+    border-radius: 14px;
+    background: var(--kakao);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+#importMergeInput,
+#importOverwriteInput {
+    display: none;
+}
+
+@media (max-width: 520px) {
+    body { padding: 10px; padding-top: max(10px, env(safe-area-inset-top)); }
+    .header-top { align-items: flex-start; }
+    .backup-group { flex-direction: column; }
+    h1 { font-size: 1.2rem; }
+    .filter-tabs { grid-template-columns: repeat(3, 1fr); }
+    .summary-grid { grid-template-columns: 1fr; }
+    .meta { align-items: flex-start; flex-direction: column; }
+    .actions { flex-wrap: wrap; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="header-top">
+            <h1>Save Log 📥</h1>
+            <div class="backup-group">
+                <button class="small-btn" onclick="exportData()">💾 백업</button>
+                <button class="small-btn merge-btn" onclick="document.getElementById('importMergeInput').click()">🔀 병합</button>
+                <button class="small-btn overwrite-btn" onclick="document.getElementById('importOverwriteInput').click()">📂 덮어쓰기</button>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input id="searchInput" type="text" placeholder="검색하기  예: #코딩, 유튜브, 네이버" oninput="renderItems()">
+            <button class="clear-btn" onclick="clearSearch()">×</button>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="tab-btn active" onclick="setView('all')">전체</button>
+            <button class="tab-btn" onclick="setView('pinned')">📌 핀</button>
+            <button class="tab-btn" onclick="setView('favorite')">⭐ 즐겨찾기</button>
+            <button class="tab-btn" onclick="setView('recent')">👀 최근 본 것</button>
+            <button class="tab-btn" onclick="setView('summary')">📊 요약</button>
+        </div>
+
+        <div class="hint">
+            엔터 = 저장 / Shift + 엔터 = 줄바꿈<br>
+            <strong>병합</strong>은 기존 기록을 살리고 백업 파일 기록을 합쳐줘. <strong>덮어쓰기</strong>는 현재 기록을 백업 파일로 교체해.
+        </div>
+    </div>
+
+    <div id="summaryBox" class="summary-box"></div>
+    <div id="saveList" class="list"></div>
+</div>
+
+<div class="input-area">
+    <div class="input-inner">
+        <textarea id="quickInput" placeholder="링크나 내용을 적어줘!"></textarea>
+        <button class="send-btn" onclick="quickAdd()">전송</button>
+    </div>
+</div>
+
+<input type="file" id="importMergeInput" accept=".json" onchange="mergeData(event)">
+<input type="file" id="importOverwriteInput" accept=".json" onchange="overwriteData(event)">
+
+<script>
+const KEY = 'Bunny_SaveLog_Chat_v3';
+let items = JSON.parse(localStorage.getItem(KEY) || '[]');
+let currentView = 'all';
+
+const quickInput = document.getElementById('quickInput');
+
+quickInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        quickAdd();
+    }
+});
+
+function saveToLocal() {
+    localStorage.setItem(KEY, JSON.stringify(items));
+}
+
+function formatDate(date) {
+    const y = date.getFullYear();
+    const m = date.getMonth() + 1;
+    const d = date.getDate();
+    let h = date.getHours();
+    const ampm = h >= 12 ? '오후' : '오전';
+    let displayH = h % 12;
+    displayH = displayH ? displayH : 12;
+    const min = String(date.getMinutes()).padStart(2, '0');
+    const sec = String(date.getSeconds()).padStart(2, '0');
+    return `${y}. ${m}. ${d}. ${ampm} ${displayH}:${min}:${sec}`;
+}
+
+function escapeHtml(text) {
+    return String(text || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+function extractTags(text) {
+    const matches = String(text || '').match(/#[가-힣a-zA-Z0-9_]+/g) || [];
+    return [...new Set(matches)];
+}
+
+function extractFirstUrl(text) {
+    const match = String(text || '').match(/https?:\/\/[^\s]+/);
+    return match ? match[0] : '';
+}
+
+function linkify(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return escapeHtml(text).replace(urlRegex, function(url) {
+        return `<a href="${url}" target="_blank" onclick="event.stopPropagation()">${url}</a>`;
+    });
+}
+
+function getYoutubeId(url) {
+    const regExp = /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([^&?/\s]+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+}
+
+function getDomain(url) {
+    try {
+        return new URL(url).hostname.replace('www.', '');
+    } catch {
+        return '';
+    }
+}
+
+function getLinkType(url) {
+    const domain = getDomain(url);
+    if (domain.includes('youtube.com') || domain.includes('youtu.be')) return 'youtube';
+    if (domain.includes('instagram.com')) return 'instagram';
+    if (domain.includes('naver.com') || domain.includes('blog.naver.com')) return 'naver';
+    return 'link';
+}
+
+async function makePreview(content) {
+    const url = extractFirstUrl(content);
+    if (!url) return null;
+
+    const type = getLinkType(url);
+    const domain = getDomain(url);
+
+    if (type === 'youtube') {
+        const videoId = getYoutubeId(url);
+        if (!videoId) return null;
+
+        let title = '유튜브 영상';
+        try {
+            const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+            const data = await res.json();
+            if (data && data.title) title = data.title;
+        } catch (e) {}
+
+        return {
+            type: 'youtube',
+            label: 'YOUTUBE',
+            title: title,
+            url: url,
+            image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+            domain: domain
+        };
+    }
+
+    if (type === 'instagram') {
+        return {
+            type: 'instagram',
+            label: 'INSTAGRAM',
+            title: '인스타그램 링크',
+            url: url,
+            image: '',
+            domain: domain
+        };
+    }
+
+    if (type === 'naver') {
+        return {
+            type: 'naver',
+            label: 'NAVER',
+            title: '네이버 링크',
+            url: url,
+            image: '',
+            domain: domain
+        };
+    }
+
+    return {
+        type: 'link',
+        label: 'LINK',
+        title: domain || '링크',
+        url: url,
+        image: '',
+        domain: domain
+    };
+}
+
+async function quickAdd() {
+    const content = quickInput.value.trim();
+    if (!content) return;
+
+    const now = new Date();
+    const preview = await makePreview(content);
+
+    const newItem = {
+        id: Date.now(),
+        content: content,
+        tags: extractTags(content),
+        preview: preview,
+        createdAt: now.toISOString(),
+        dateText: formatDate(now),
+        updatedAt: null,
+        favorite: false,
+        pinned: false,
+        lastViewedAt: null,
+        viewCount: 0
+    };
+
+    items.unshift(newItem);
+    saveToLocal();
+
+    quickInput.value = '';
+    renderItems();
+}
+
+function setView(view) {
+    currentView = view;
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    const indexMap = { all: 1, pinned: 2, favorite: 3, recent: 4, summary: 5 };
+    document.querySelector(`.tab-btn:nth-child(${indexMap[view]})`).classList.add('active');
+
+    renderItems();
+}
+
+function normalizeOldItems() {
+    let changed = false;
+
+    items = items.map(item => {
+        if (item.favorite === undefined) { item.favorite = false; changed = true; }
+        if (item.pinned === undefined) { item.pinned = false; changed = true; }
+        if (item.lastViewedAt === undefined) { item.lastViewedAt = null; changed = true; }
+        if (item.viewCount === undefined) { item.viewCount = 0; changed = true; }
+        return item;
+    });
+
+    if (changed) saveToLocal();
+}
+
+async function normalizeImportedItems(importedItems) {
+    const converted = [];
+
+    for (const item of importedItems) {
+        const baseDate = item.createdAt
+            ? new Date(item.createdAt)
+            : new Date(item.date || item.id || Date.now());
+
+        const content = item.content || item.title || item.memo || '';
+        const preview = item.preview || await makePreview(content);
+
+        converted.push({
+            id: item.id || Date.now() + Math.random(),
+            content: content,
+            tags: item.tags && Array.isArray(item.tags) ? item.tags : extractTags(content),
+            preview: preview,
+            createdAt: item.createdAt || baseDate.toISOString(),
+            dateText: item.dateText || item.date || formatDate(baseDate),
+            updatedAt: item.updatedAt || null,
+            favorite: item.favorite || false,
+            pinned: item.pinned || false,
+            lastViewedAt: item.lastViewedAt || null,
+            viewCount: item.viewCount || 0
+        });
+    }
+
+    return converted;
+}
+
+function getImportArray(parsed) {
+    if (Array.isArray(parsed)) return parsed;
+    if (parsed && Array.isArray(parsed.items)) return parsed.items;
+    return null;
+}
+
+function makeMergeKey(item) {
+    const content = String(item.content || '').trim().toLowerCase();
+    const url = extractFirstUrl(content).toLowerCase();
+
+    if (url) return `url::${url}`;
+    if (content) return `content::${content}`;
+
+    return `id::${item.id}`;
+}
+
+function mergeTwoItems(existing, incoming) {
+    const existingUpdated = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+    const incomingUpdated = incoming.updatedAt ? new Date(incoming.updatedAt).getTime() : 0;
+
+    const base = incomingUpdated > existingUpdated
+        ? { ...existing, ...incoming }
+        : { ...incoming, ...existing };
+
+    const mergedTags = [...new Set([...(existing.tags || []), ...(incoming.tags || [])])];
+
+    return {
+        ...base,
+        id: existing.id || incoming.id,
+        content: base.content || existing.content || incoming.content || '',
+        tags: mergedTags,
+        preview: base.preview || existing.preview || incoming.preview || null,
+        createdAt: existing.createdAt && incoming.createdAt
+            ? (new Date(existing.createdAt) <= new Date(incoming.createdAt) ? existing.createdAt : incoming.createdAt)
+            : (existing.createdAt || incoming.createdAt),
+        dateText: existing.dateText || incoming.dateText,
+        updatedAt: existingUpdated >= incomingUpdated ? existing.updatedAt : incoming.updatedAt,
+        favorite: Boolean(existing.favorite || incoming.favorite),
+        pinned: Boolean(existing.pinned || incoming.pinned),
+        lastViewedAt: getLatestDateString(existing.lastViewedAt, incoming.lastViewedAt),
+        viewCount: Math.max(Number(existing.viewCount || 0), Number(incoming.viewCount || 0))
+    };
+}
+
+function getLatestDateString(a, b) {
+    if (!a) return b || null;
+    if (!b) return a || null;
+    return new Date(a) >= new Date(b) ? a : b;
+}
+
+function getSortedItems(baseItems) {
+    return [...baseItems].sort((a, b) => {
+        if (a.pinned !== b.pinned) return b.pinned - a.pinned;
+        return new Date(b.createdAt || b.id) - new Date(a.createdAt || a.id);
+    });
+}
+
+function getFilteredItems() {
+    const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+    let base = items.filter(item => {
+        if (currentView === 'pinned') return item.pinned;
+        if (currentView === 'favorite') return item.favorite;
+        if (currentView === 'recent') return item.lastViewedAt;
+        return true;
+    });
+
+    if (currentView === 'recent') {
+        base = [...base].sort((a, b) => new Date(b.lastViewedAt) - new Date(a.lastViewedAt)).slice(0, 20);
+    } else {
+        base = getSortedItems(base);
+    }
+
+    return base.filter(item => {
+        const previewText = item.preview ? `${item.preview.title} ${item.preview.url} ${item.preview.domain}` : '';
+        const haystack = [
+            item.content || '',
+            (item.tags || []).join(' '),
+            item.dateText || '',
+            previewText
+        ].join(' ').toLowerCase();
+
+        return !keyword || haystack.includes(keyword);
+    });
+}
+
+function renderPreview(item) {
+    if (!item.preview) return '';
+
+    const p = item.preview;
+    const imageHtml = p.image
+        ? `<div class="preview-img-wrap"><img class="preview-img" src="${escapeHtml(p.image)}" onerror="this.parentElement.style.display='none'"></div>`
+        : '';
+
+    return `
+        <a class="preview" href="${escapeHtml(p.url)}" target="_blank" onclick="markViewed(${item.id})">
+            ${imageHtml}
+            <div class="preview-body">
+                <div class="preview-label">${escapeHtml(p.label || 'LINK')}</div>
+                <div class="preview-title">${escapeHtml(p.title || p.domain || '링크')}</div>
+                <div class="preview-url">${escapeHtml(p.url)}</div>
+            </div>
+        </a>
+    `;
+}
+
+function renderSummary() {
+    const box = document.getElementById('summaryBox');
+
+    if (currentView !== 'summary') {
+        box.classList.remove('show');
+        box.innerHTML = '';
+        return;
+    }
+
+    const total = items.length;
+    const pinned = items.filter(i => i.pinned).length;
+    const favorite = items.filter(i => i.favorite).length;
+    const viewed = items.filter(i => i.lastViewedAt).length;
+
+    const tagCounts = {};
+    items.forEach(item => {
+        (item.tags || []).forEach(tag => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        });
+    });
+
+    const topTags = Object.entries(tagCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+    box.classList.add('show');
+    box.innerHTML = `
+        <div class="summary-title">📊 Save Log 패턴 요약</div>
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-label">전체 저장</div>
+                <div class="summary-value">${total}개</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">핀 고정</div>
+                <div class="summary-value">${pinned}개</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">즐겨찾기</div>
+                <div class="summary-value">${favorite}개</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">다시 본 기록</div>
+                <div class="summary-value">${viewed}개</div>
+            </div>
+        </div>
+        <div class="summary-title" style="margin-top:16px;">요즘 많이 저장한 태그</div>
+        <div class="top-tags">
+            ${
+                topTags.length
+                ? topTags.map(([tag, count]) => `<span class="tag" onclick="searchTag('${tag}')">${tag} ${count}</span>`).join('')
+                : `<span style="color:#8a8f98; font-size:0.85rem;">아직 태그가 없어. #태그를 붙여보자!</span>`
+            }
+        </div>
+    `;
+}
+
+function renderItems() {
+    normalizeOldItems();
+    renderSummary();
+
+    const list = document.getElementById('saveList');
+
+    if (currentView === 'summary') {
+        list.innerHTML = '';
+        return;
+    }
+
+    const filtered = getFilteredItems();
+
+    if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty">아직 저장된 내용이 없거나 검색 결과가 없어 🫧</div>`;
+        return;
+    }
+
+    list.innerHTML = filtered.map(item => {
+        const tags = item.tags || [];
+        const updatedText = item.updatedAt ? ` · 수정됨 ${formatDate(new Date(item.updatedAt))}` : '';
+        const viewedText = item.lastViewedAt ? `👀 ${formatDate(new Date(item.lastViewedAt))}` : '';
+        const viewCountText = item.viewCount ? `다시 봄 ${item.viewCount}회` : '';
+
+        return `
+            <div class="save-item ${item.pinned ? 'pinned' : ''}">
+                <div class="meta">
+                    <span>📅 ${item.dateText || formatDate(new Date(item.createdAt || item.id))}${updatedText}</span>
+                    <div class="actions">
+                        <button class="icon-action star ${item.favorite ? 'active' : ''}" onclick="toggleFavorite(${item.id})">${item.favorite ? '⭐' : '☆'}</button>
+                        <button class="icon-action pin ${item.pinned ? 'active' : ''}" onclick="togglePin(${item.id})">${item.pinned ? '📌' : '📍'}</button>
+                        <span class="action edit" onclick="toggleEdit(${item.id})">수정</span>
+                        <span class="action delete" onclick="deleteItem(${item.id})">삭제</span>
+                    </div>
+                </div>
+
+                ${renderPreview(item)}
+
+                <div class="content">${linkify(item.content || '')}</div>
+
+                ${tags.length ? `
+                    <div class="tag-row">
+                        ${tags.map(tag => `<span class="tag" onclick="searchTag('${tag}')">${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+
+                ${(viewedText || viewCountText) ? `
+                    <div class="info-row">
+                        ${viewedText ? `<span>${viewedText}</span>` : ''}
+                        ${viewCountText ? `<span>${viewCountText}</span>` : ''}
+                    </div>
+                ` : ''}
+
+                <div class="edit-area" id="edit-${item.id}">
+                    <textarea id="edit-content-${item.id}" placeholder="내용 수정">${escapeHtml(item.content || '')}</textarea>
+                    <input id="edit-tags-${item.id}" type="text" placeholder="#태그 #저장 #나중에보기" value="${escapeHtml(tags.join(' '))}">
+                    <button class="edit-save-btn" onclick="saveEdit(${item.id})">수정 저장하기</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleEdit(id) {
+    const area = document.getElementById(`edit-${id}`);
+    if (!area) return;
+    area.style.display = area.style.display === 'block' ? 'none' : 'block';
+}
+
+async function saveEdit(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    const content = document.getElementById(`edit-content-${id}`).value.trim();
+    const tagInput = document.getElementById(`edit-tags-${id}`).value.trim();
+
+    if (!content) {
+        alert('내용이 비어있으면 저장할 수 없어!');
+        return;
+    }
+
+    const contentTags = extractTags(content);
+    const manualTags = extractTags(tagInput);
+    const mergedTags = [...new Set([...contentTags, ...manualTags])];
+
+    item.content = content;
+    item.tags = mergedTags;
+    item.preview = await makePreview(content);
+    item.updatedAt = new Date().toISOString();
+
+    saveToLocal();
+    renderItems();
+}
+
+function toggleFavorite(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    item.favorite = !item.favorite;
+    saveToLocal();
+    renderItems();
+}
+
+function togglePin(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    item.pinned = !item.pinned;
+    saveToLocal();
+    renderItems();
+}
+
+function markViewed(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    item.lastViewedAt = new Date().toISOString();
+    item.viewCount = (item.viewCount || 0) + 1;
+    saveToLocal();
+}
+
+function deleteItem(id) {
+    if (!confirm('이 기록을 삭제할까?')) return;
+    items = items.filter(item => item.id !== id);
+    saveToLocal();
+    renderItems();
+}
+
+function searchTag(tag) {
+    document.getElementById('searchInput').value = tag;
+    if (currentView === 'summary') setView('all');
+    renderItems();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    renderItems();
+}
+
+function exportData() {
+    const data = {
+        app: 'Bunny Save Log',
+        version: 4,
+        exportedAt: new Date().toISOString(),
+        items: items
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bunny_save_log_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function mergeData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        try {
+            const parsed = JSON.parse(e.target.result);
+            const importedRaw = getImportArray(parsed);
+
+            if (!importedRaw) {
+                alert('병합할 수 있는 백업 파일이 아니야 ㅠㅠ');
+                return;
+            }
+
+            if (!confirm('현재 기록은 그대로 두고, 이 백업 파일의 기록을 합칠까?')) return;
+
+            normalizeOldItems();
+
+            const imported = await normalizeImportedItems(importedRaw);
+            const map = new Map();
+
+            items.forEach(item => {
+                map.set(makeMergeKey(item), item);
+            });
+
+            let added = 0;
+            let merged = 0;
+
+            imported.forEach(incoming => {
+                const key = makeMergeKey(incoming);
+                const existing = map.get(key);
+
+                if (existing) {
+                    const mergedItem = mergeTwoItems(existing, incoming);
+                    map.set(key, mergedItem);
+                    merged++;
+                } else {
+                    map.set(key, incoming);
+                    added++;
+                }
+            });
+
+            items = Array.from(map.values());
+            items = getSortedItems(items);
+
+            saveToLocal();
+            currentView = 'all';
+            setView('all');
+
+            alert(`병합 완료! 새 기록 ${added}개 추가, 중복/수정 기록 ${merged}개 정리했어.`);
+        } catch (err) {
+            alert('파일을 병합하는 중 문제가 생겼어 ㅠㅠ');
+        }
+
+        event.target.value = '';
+    };
+
+    reader.readAsText(file);
+}
+
+function overwriteData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        try {
+            const parsed = JSON.parse(e.target.result);
+            const importedRaw = getImportArray(parsed);
+
+            if (!importedRaw) {
+                alert('불러올 수 있는 백업 파일이 아니야 ㅠㅠ');
+                return;
+            }
+
+            if (!confirm('덮어쓰면 현재 저장된 내용이 백업 파일 내용으로 교체돼. 계속할까?')) return;
+
+            items = await normalizeImportedItems(importedRaw);
+            items = getSortedItems(items);
+
+            saveToLocal();
+            currentView = 'all';
+            setView('all');
+
+            alert('덮어쓰기 완료!');
+        } catch (err) {
+            alert('파일을 읽는 중 문제가 생겼어 ㅠㅠ');
+        }
+
+        event.target.value = '';
+    };
+
+    reader.readAsText(file);
+}
+
+normalizeOldItems();
+renderItems();
+</script>
+
+</body>
+</html>
