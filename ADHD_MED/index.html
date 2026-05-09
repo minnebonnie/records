@@ -7,6 +7,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="복약일지">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+
+<link rel="apple-touch-icon" sizes="180x180" href="./icon.png">
+<link rel="icon" type="image/png" href="./icon.png">
+<link rel="shortcut icon" type="image/png" href="./icon.png">
+
 <title>콘서타 복약일지</title>
 
 <style>
@@ -475,7 +481,7 @@ button, input, textarea {
             <input id="logInput" type="text" placeholder="먹음 / 집중됨 / 불안함 / 졸림..." autocomplete="off">
             <button class="add-btn" onclick="addLog()">기록</button>
         </div>
-        <div class="hint">엔터를 누르면 현재 시간으로 바로 기록돼. 캘린더 기록을 누르면 시간/내용 수정과 삭제가 가능해.</div>
+        <div class="hint">엔터를 누르면 현재 시간으로 바로 기록돼. 캘린더 기록을 누르면 날짜/시간/내용 수정과 삭제가 가능해.</div>
     </section>
 
     <section class="backup-zone">
@@ -516,6 +522,9 @@ button, input, textarea {
 <div class="modal" id="editModal">
     <div class="modal-content">
         <div class="modal-title">기록 수정</div>
+
+        <div class="modal-label">날짜</div>
+        <input class="modal-input" id="editDate" type="date">
 
         <div class="modal-label">시간</div>
         <input class="modal-input" id="editTime" type="time">
@@ -681,6 +690,7 @@ function openEdit(id) {
     if (!log) return;
 
     editingId = id;
+    document.getElementById("editDate").value = log.dateKey || makeDateKey(new Date());
     document.getElementById("editTime").value = log.time || "00:00";
     document.getElementById("editText").value = log.text || "";
     document.getElementById("editModal").style.display = "flex";
@@ -690,17 +700,30 @@ function saveEdit() {
     const log = state.logs.find(item => item.id === editingId);
     if (!log) return;
 
+    const newDate = document.getElementById("editDate").value;
     const newTime = document.getElementById("editTime").value;
     const newText = document.getElementById("editText").value.trim();
+
+    if (!newDate) {
+        alert("날짜를 선택해줘.");
+        return;
+    }
 
     if (!newText) {
         alert("내용이 비어있으면 저장할 수 없어.");
         return;
     }
 
+    log.dateKey = newDate;
     log.time = newTime || log.time;
     log.text = newText;
     log.updatedAt = new Date().toISOString();
+
+    const movedDate = parseDateKey(newDate);
+    if (!isNaN(movedDate.getTime())) {
+        selectedDateKey = newDate;
+        viewDate = new Date(movedDate.getFullYear(), movedDate.getMonth(), 1);
+    }
 
     saveState();
     closeModal();
@@ -849,6 +872,10 @@ function makeDateKey(date) {
 
 function formatTime(date) {
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function parseDateKey(dateKey) {
+    return new Date(dateKey + "T00:00:00");
 }
 
 function formatDateKorean(dateKey) {
