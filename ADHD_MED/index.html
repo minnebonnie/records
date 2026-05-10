@@ -771,7 +771,7 @@ function exportData() {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = `concerta_log_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `콘서타 로그 백업_phone.json`;
     a.click();
 
     URL.revokeObjectURL(url);
