@@ -538,7 +538,7 @@ function exportData() {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `bunny_todo_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `투두리스트 백업_phone.json`;
     a.click();
 
     URL.revokeObjectURL(url);
