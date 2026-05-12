@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>바니의 에너지 로그</title>
+    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        :root { --primary: #007bff; --bg: #f8f9fa; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        #main-view, #report-view { width: 100%; max-width: 450px; display: none; }
+        #main-view { display: block; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { margin-top: 0; text-align: center; color: #333; }
+        
+        /* 백업 섹션 스타일 수정 */
+        .backup-zone { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; box-sizing: border-box; }
+        .backup-btn { flex: 1; font-size: 0.75rem; padding: 10px 5px; border-radius: 12px; border: 1px solid #ddd; background: white; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .backup-btn:hover { background: #f0f0f0; }
+
+        .date-nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; min-height: 40px; }
+        .nav-btn { background: #eee; padding: 5px 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; color: #555; border: none; }
+        .today-btn { background: #007bff; color: white; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; border: none; cursor: pointer; }
+        .report-date-display { color: #007bff; font-size: 1rem; font-weight: bold; text-align: center; min-width: 150px; }
+
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; background: #fafafa; font-size: 16px; }
+        button { cursor: pointer; border: none; border-radius: 12px; font-weight: bold; transition: 0.2s; }
+        .save-btn { width: 100%; padding: 15px; background: var(--primary); color: white; font-size: 1rem; margin-bottom: 10px; }
+        .report-link-btn { width: 100%; padding: 12px; background: #343a40; color: white; margin-top: 5px; }
+        .log-item { background: white; margin-top: 12px; padding: 18px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; border-left: 8px solid #ddd; box-sizing: border-box; }
+        .low-energy { border-left-color: #ff4d4d; background: #fff5f5; }
+        .mid-energy { border-left-color: #ffa94d; background: #fff9f2; }
+        .high-energy { border-left-color: #51cf66; background: #f4fce3; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; background: none; font-size: 1.2rem; cursor: pointer; opacity: 0.3; }
+        .chart-box { background: white; padding: 15px; border-radius: 20px; height: 300px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .filter-group { display: flex; gap: 5px; margin-bottom: 15px; }
+        .filter-btn { flex: 1; padding: 8px; background: #eee; font-size: 0.75rem; border-radius: 10px; }
+        .filter-btn.active { background: var(--primary); color: white; }
+        .back-btn { width: 100%; padding: 12px; background: #6c757d; color: white; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="main-view">
+        <div class="card">
+            <h2>⚡️ 에너지 기록</h2>
+            <input type="number" id="energy" placeholder="에너지 % (0-100)" min="0" max="100">
+            <textarea id="memo" placeholder="무슨 일이 있었나요?" rows="2"></textarea>
+            <button class="save-btn" onclick="saveLog()">기록하기</button>
+            <button class="report-link-btn" onclick="showReport()">📈 리포트 보기</button>
+        </div>
+
+        <div class="backup-zone">
+            <button class="backup-btn" onclick="exportEnergyData()">💾 백업</button>
+            <button class="backup-btn" onclick="document.getElementById('mergeEnergyFile').click()">🔄 통합</button>
+            <button class="backup-btn" onclick="document.getElementById('importEnergyFile').click()">📂 불러오기</button>
+            
+            <input type="file" id="mergeEnergyFile" style="display:none;" onchange="mergeEnergyData(event)">
+            <input type="file" id="importEnergyFile" style="display:none;" onchange="importEnergyData(event)">
+        </div>
+
+        <div id="logList"></div>
+    </div>
+
+    <div id="report-view">
+        <button class="back-btn" onclick="showMain()">⬅️ 기록하러 가기</button>
+        <div class="card" style="padding: 15px;">
+            <h2>📈 에너지 리포트</h2>
+            <div class="filter-group">
+                <button class="filter-btn active" id="btn-today" onclick="setPeriod('today')">Daily</button>
+                <button class="filter-btn" id="btn-week" onclick="setPeriod('week')">Weekly</button>
+                <button class="filter-btn" id="btn-month" onclick="setPeriod('month')">Monthly</button>
+                <button class="filter-btn" id="btn-all" onclick="setPeriod('all')">전체</button>
+            </div>
+            
+            <div class="date-nav" id="nav-container">
+                <button class="nav-btn" id="prevBtn" onclick="changeDate(-1)">◀</button>
+                <div id="dateDisplay" class="report-date-display"></div>
+                <button class="nav-btn" id="nextBtn" onclick="changeDate(1)">▶</button>
+                <button class="today-btn" id="todayBtn" onclick="goToday()">Today</button>
+            </div>
+
+            <div class="chart-box">
+                <canvas id="energyChart"></canvas>
+            </div>
+        </div>
+        <div id="reportLogList"></div>
+    </div>
+
+<script>
+    let myChart = null;
+    let currentViewPeriod = 'today';
+    let viewDate = new Date();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    window.onload = () => { displayLogs(); goToday(); };
+
+    /* 💾 데이터 백업 */
+    function exportEnergyData() {
+        const logs = JSON.parse(localStorage.getItem('bunnyLogs') || '[]');
+        if(logs.length === 0) return alert("백업할 데이터가 없어 바니!");
+        const data = JSON.stringify(logs, null, 2);
+        const blob = new Blob([data], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const dateStr = new Date().toLocaleDateString().replace(/\s/g, '');
+        a.href = url;
+        a.download = `에너지로그_백업_phone.json`;
+        a.click();
+    }
+
+    /* 🔄 데이터 통합 (중복 제외 합치기) */
+    function mergeEnergyData(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                let logs = JSON.parse(localStorage.getItem('bunnyLogs') || '[]');
+                const combined = [...imported, ...logs];
+                // id를 기준으로 중복 제거
+                const uniqueLogs = Array.from(new Map(combined.map(item => [item.id, item])).values());
+                localStorage.setItem('bunnyLogs', JSON.stringify(uniqueLogs.sort((a,b) => b.id - a.id)));
+                displayLogs();
+                alert("기존 데이터와 통합 완료! 🔋");
+            } catch(err) { alert("파일을 확인해줘 바니 ㅠㅠ"); }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // 같은 파일 다시 선택 가능하도록 초기화
+    }
+
+    /* 📂 데이터 불러오기 (덮어쓰기) */
+    function importEnergyData(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        if(!confirm("기존 기록을 모두 지우고 이 파일로 덮어쓸까?")) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                localStorage.setItem('bunnyLogs', JSON.stringify(imported));
+                displayLogs();
+                alert("데이터 불러오기 완료! 🔋");
+            } catch(err) { alert("파일을 확인해줘 바니 ㅠㅠ"); }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    function setPeriod(p) {
+        currentViewPeriod = p;
+        const isAll = (p === 'all');
+        document.getElementById('prevBtn').style.visibility = isAll ? 'hidden' : 'visible';
+        document.getElementById('nextBtn').style.visibility = isAll ? 'hidden' : 'visible';
+        document.getElementById('todayBtn').style.visibility = isAll ? 'hidden' : 'visible';
+        viewDate = new Date();
+        updateChart();
+    }
+
+    function changeDate(step) {
+        if (currentViewPeriod === 'today') viewDate.setDate(viewDate.getDate() + step);
+        else if (currentViewPeriod === 'week') viewDate.setDate(viewDate.getDate() + (step * 7));
+        else if (currentViewPeriod === 'month') viewDate.setMonth(viewDate.getMonth() + step);
+        updateChart();
+    }
+
+    function goToday() { viewDate = new Date(); updateChart(); }
+
+    function updateChart() {
+        const logs = JSON.parse(localStorage.getItem('bunnyLogs') || '[]');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const reportLogList = document.getElementById('reportLogList');
+        let filteredLogs = [];
+        let minX, maxX, unit, displayFormat, titleText;
+
+        if (currentViewPeriod === 'today') {
+            titleText = `${monthNames[viewDate.getMonth()]} ${viewDate.getDate()}, ${viewDate.getFullYear()}`;
+            minX = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 0, 0, 0).getTime();
+            maxX = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 23, 59, 59).getTime();
+            unit = 'hour'; displayFormat = 'H';
+            filteredLogs = logs.filter(l => new Date(Number(l.timestamp || l.id)).toDateString() === viewDate.toDateString());
+        } else if (currentViewPeriod === 'week') {
+            const sun = new Date(viewDate); sun.setDate(viewDate.getDate() - viewDate.getDay());
+            titleText = `Week of ${monthNames[sun.getMonth()]} ${sun.getDate()}`;
+            minX = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate(), 0, 0, 0).getTime();
+            maxX = minX + (7 * 24 * 60 * 60 * 1000) - 1000;
+            unit = 'day'; displayFormat = 'eee';
+            filteredLogs = logs.filter(l => { const ts = Number(l.timestamp || l.id); return ts >= minX && ts <= maxX; });
+        } else if (currentViewPeriod === 'month') {
+            titleText = `${monthNames[viewDate.getMonth()]}, ${viewDate.getFullYear()}`;
+            minX = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getTime();
+            maxX = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0, 23, 59, 59).getTime();
+            unit = 'day'; displayFormat = 'd';
+            filteredLogs = logs.filter(l => { const ts = Number(l.timestamp || l.id); return ts >= minX && ts <= maxX; });
+        } else {
+            const times = logs.map(l => Number(l.timestamp || l.id)).sort((a,b)=>a-b);
+            titleText = logs.length ? "전체 기록" : "기록 없음";
+            unit = 'month'; displayFormat = 'MMM';
+            minX = times[0]; maxX = times[times.length-1];
+            filteredLogs = logs;
+        }
+
+        dateDisplay.innerText = titleText;
+        const chartData = logs.map(l => ({ x: Number(l.timestamp || l.id), y: l.energy })).filter(d => !isNaN(d.x)).sort((a, b) => a.x - b.x);
+        if (myChart) myChart.destroy();
+        myChart = new Chart(document.getElementById('energyChart'), {
+            type: 'line',
+            data: { datasets: [{ label: '에너지 %', data: chartData, borderColor: '#007bff', borderWidth: 2, fill: false, tension: 0, pointRadius: 6, pointBackgroundColor: '#007bff' }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', time: { unit: unit, displayFormats: { [unit]: displayFormat } }, min: minX, max: maxX, ticks: { font: { size: 9 } } }, y: { min: 0, max: 100 } } }
+        });
+        renderLogList(filteredLogs, reportLogList);
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + currentViewPeriod).classList.add('active');
+    }
+
+    function renderLogList(data, target) {
+        target.innerHTML = data.map(log => {
+            let color = log.energy < 25 ? "low-energy" : (log.energy <= 65 ? "mid-energy" : "high-energy");
+            return `<div class="log-item ${color}"><button class="delete-btn" onclick="deleteLog(${log.id})">🗑️</button><div class="date-text">🗓️ ${log.date}</div><div><strong>🔋 ${log.energy}%</strong></div><p style="margin:8px 0 0 0; color:#444; font-size:0.95rem;">📝 ${log.memo}</p></div>`;
+        }).join('');
+    }
+
+    function showReport() { document.getElementById('main-view').style.display = 'none'; document.getElementById('report-view').style.display = 'block'; setPeriod('today'); }
+    function showMain() { document.getElementById('report-view').style.display = 'none'; document.getElementById('main-view').style.display = 'block'; displayLogs(); }
+    
+    function saveLog() {
+        const eInput = document.getElementById('energy'); const mInput = document.getElementById('memo');
+        if(!eInput.value || !mInput.value) return alert("내용을 입력해줘!");
+        const now = new Date();
+        const newLog = { id: Date.now(), date: formatDate(now), timestamp: now.getTime(), energy: parseInt(eInput.value), memo: mInput.value };
+        let logs = JSON.parse(localStorage.getItem('bunnyLogs') || '[]'); logs.unshift(newLog); localStorage.setItem('bunnyLogs', JSON.stringify(logs));
+        eInput.value = ''; mInput.value = ''; displayLogs(); alert("기록 완료! 🔋");
+    }
+    
+    function displayLogs() { renderLogList(JSON.parse(localStorage.getItem('bunnyLogs') || '[]'), document.getElementById('logList')); }
+    
+    function deleteLog(id) { if(!confirm("지울까?")) return; let logs = JSON.parse(localStorage.getItem('bunnyLogs') || '[]'); localStorage.setItem('bunnyLogs', JSON.stringify(logs.filter(l => l.id !== id))); displayLogs(); updateChart(); }
+    
+    function formatDate(date) {
+        const y = date.getFullYear(); const m = date.getMonth() + 1; const d = date.getDate();
+        let h = date.getHours(); const ampm = h >= 12 ? '오후' : '오전';
+        let hDisplay = h % 12 || 12; 
+        const min = String(date.getMinutes()).padStart(2, '0');
+        return `${y}. ${m}. ${d}. ${ampm} ${hDisplay}:${min}`;
+    }
+</script>
+</body>
+</html>
