@@ -281,6 +281,53 @@
             opacity: 0.8;
         }
 
+
+        .copy-schedule-box {
+            background: var(--sub-bg);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 14px;
+            margin-top: 14px;
+            box-shadow: 0 4px 12px rgba(158, 142, 124, 0.035);
+        }
+
+        .copy-schedule-title {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .copy-schedule-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .copy-date-input {
+            flex: 1;
+            margin: 0;
+            padding: 11px 10px;
+            background: var(--sub-bg);
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .copy-schedule-btn {
+            flex: 1;
+            padding: 12px 10px;
+            background: var(--mint);
+            color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(206, 229, 208, 0.4);
+            white-space: nowrap;
+        }
+
+        .copy-schedule-btn:active {
+            opacity: 0.85;
+        }
+
         #capture-area {
             background: #ffffff;
             padding: 25px;
@@ -564,6 +611,16 @@
                 padding: 0 10px;
             }
 
+
+            .copy-schedule-controls {
+                flex-direction: column;
+            }
+
+            .copy-date-input,
+            .copy-schedule-btn {
+                width: 100%;
+            }
+
             .capture-preset-wrapper {
                 width: 390px;
                 min-height: 844px;
@@ -606,6 +663,14 @@
 
             <button class="save-btn" onclick="saveSchedule()">즉시 기록하기</button>
 
+            <div class="copy-schedule-box">
+                <div class="copy-schedule-title">📋 다른 날 기록 가져오기</div>
+                <div class="copy-schedule-controls">
+                    <input type="date" id="copySourceDate" class="copy-date-input">
+                    <button class="copy-schedule-btn" onclick="copySchedulesFromSelectedDate()">기록 복사하기</button>
+                </div>
+            </div>
+
             <div class="cat-manage-box">
                 <h3>➕ 새 카테고리 종류 추가</h3>
                 <div class="cat-manage-form">
@@ -627,6 +692,7 @@
             <button class="nav-arrow-btn" onclick="changeViewDate(1)">▶</button>
             <button class="today-btn" onclick="goToday()">Today</button>
         </div>
+
 
         <button class="go-preview-btn" onclick="showPreviewView()">📸 스케줄 이미지로 다운받기</button>
 
@@ -672,6 +738,7 @@
     ];
 
     let selectedCategoryIndex = 0;
+    let lastViewDateForCopyDefault = "";
 
     window.onload = () => {
         const savedBirth = localStorage.getItem('babyBirthDate');
@@ -875,6 +942,81 @@
         displaySchedules();
     }
 
+
+    function getPreviousDateString(dateValue) {
+        if (!dateValue) return getLocalDateString(new Date());
+
+        const baseDate = new Date(dateValue + 'T00:00:00');
+        baseDate.setDate(baseDate.getDate() - 1);
+
+        return getLocalDateString(baseDate);
+    }
+
+    function syncCopySourceDateDefault() {
+        const viewDateVal = document.getElementById('viewDate').value;
+        const copyInput = document.getElementById('copySourceDate');
+
+        if (!viewDateVal || !copyInput) return;
+
+        if (lastViewDateForCopyDefault !== viewDateVal) {
+            copyInput.value = getPreviousDateString(viewDateVal);
+            lastViewDateForCopyDefault = viewDateVal;
+        }
+    }
+
+    function copySchedulesFromSelectedDate() {
+        const viewDateVal = document.getElementById('viewDate').value;
+        const sourceDateVal = document.getElementById('copySourceDate').value;
+
+        if (!viewDateVal) {
+            alert("먼저 붙여넣을 날짜를 선택해줘!");
+            return;
+        }
+
+        if (!sourceDateVal) {
+            alert("가져올 기록 날짜를 선택해줘!");
+            return;
+        }
+
+        if (sourceDateVal === viewDateVal) {
+            alert("같은 날짜 기록은 같은 날짜로 복사할 수 없어 ㅠㅠ");
+            return;
+        }
+
+        let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
+        const sourceLogs = allLogs[sourceDateVal] || [];
+
+        if (sourceLogs.length === 0) {
+            alert("선택한 날짜에 복사할 기록이 없어 ㅠㅠ");
+            return;
+        }
+
+        const targetLogs = allLogs[viewDateVal] || [];
+
+        if (targetLogs.length > 0) {
+            const ok = confirm(`현재 날짜에 이미 ${targetLogs.length}개의 기록이 있어. 선택한 날짜의 ${sourceLogs.length}개 기록을 추가로 붙여넣을까?`);
+            if (!ok) return;
+        } else {
+            const ok = confirm(`선택한 날짜의 ${sourceLogs.length}개 기록을 현재 날짜로 복사할까?`);
+            if (!ok) return;
+        }
+
+        const copiedLogs = sourceLogs.map((log, index) => ({
+            ...log,
+            id: Date.now() + index + Math.floor(Math.random() * 1000),
+            memo: log.memo || '',
+            time: log.time || '',
+            categoryName: log.categoryName || '기타'
+        }));
+
+        allLogs[viewDateVal] = [...targetLogs, ...copiedLogs];
+        localStorage.setItem('babySchedules', JSON.stringify(allLogs));
+
+        displaySchedules();
+        alert(`${copiedLogs.length}개의 기록을 복사해서 붙여넣었어! 📋`);
+    }
+
+
     function saveSchedule() {
         const memoInput = document.getElementById('scheduleMemo');
 
@@ -933,6 +1075,8 @@
     function displaySchedules() {
         const viewDateVal = document.getElementById('viewDate').value;
         if (!viewDateVal) return;
+
+        syncCopySourceDateDefault();
 
         const d = viewDateVal.split('-');
         const ddayHtml = getDDayString(viewDateVal);
