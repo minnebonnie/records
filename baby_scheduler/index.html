@@ -1,187 +1,609 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>베이비 스케줄러</title>
     <link rel="icon" href="icon.png" type="image/png">
     <link rel="apple-touch-icon" href="icon.png">
-    
+
     <script src="https://html2canvas.hertzenberg.com/dist/html2canvas.min.js"></script>
+
     <style>
-        :root { 
-            --bg: #faf9f5;          /* 포근하고 깨끗한 밀크 크림색 바닥 */
+        :root {
+            --bg: #faf9f5;
             --card-bg: #ffffff;
-            --sub-bg: #fdfaf2;      /* 상큼하고 은은한 요구르트 레몬 빛 */
-            --border: #f0e9d7;      /* 부드러운 밀크티 테두리 선 */
-            --text-main: #4a4035;   /* 깊고 부드러운 소프트 코코아 브라운 (눈이 편안함) */
-            --text-sub: #9e8e7c;    /* 차분한 밀크 베이지 그레이 */
-            --point: #ffdca3;       /* 상큼 달콤한 멜팅 바나나 옐로우 */
-            --accent: #ffbca3;      /* 러블리하고 상큼한 생과일 피치 코랄 */
-            --mint: #cee5d0;        /* 싱그럽고 청량한 아기 애플 민트 */
+            --sub-bg: #fdfaf2;
+            --border: #f0e9d7;
+            --text-main: #4a4035;
+            --text-sub: #9e8e7c;
+            --point: #ffdca3;
+            --accent: #ffbca3;
+            --mint: #cee5d0;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; color: var(--text-main); }
-        .container { width: 100%; max-width: 450px; box-sizing: border-box; }
-        .card { background: var(--card-bg); padding: 22px; border-radius: 26px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 8px 24px rgba(158, 142, 124, 0.05); box-sizing: border-box; }
-        
-        /* 뷰 전환 관련 */
-        #edit-view, #preview-view { width: 100%; }
-        #preview-view { display: none; }
 
-        h2 { margin-top: 0; text-align: center; color: var(--text-main); font-size: 1.25rem; font-weight: bold; letter-spacing: -0.5px; }
-        h3 { margin-top: 0; font-size: 0.9rem; color: var(--text-sub); font-weight: bold; margin-bottom: 10px; }
-        
-        /* 입력 폼 */
-        input, textarea, select { width: 100%; padding: 13px; margin: 8px 0; border: 1px solid var(--border); border-radius: 14px; box-sizing: border-box; background: var(--sub-bg); font-size: 16px; color: var(--text-main); transition: 0.2s; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); background: #fff; }
-        button { cursor: pointer; border: none; border-radius: 14px; font-weight: bold; transition: 0.2s; font-size: 0.95rem; }
-        
-        /* 버튼 스타일 */
-        .save-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; margin-top: 5px; box-shadow: 0 4px 12px rgba(74, 64, 53, 0.15); }
-        .save-btn:active { background: #332b23; }
-        
-        .go-preview-btn { width: 100%; padding: 14px; background: var(--accent); color: white; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(255, 188, 163, 0.4); }
-        .go-preview-btn:active { opacity: 0.9; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .real-download-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(74, 64, 53, 0.15); }
-        .back-edit-btn { width: 100%; padding: 14px; background: var(--sub-bg); color: var(--text-main); border: 1px solid var(--border); margin-bottom: 20px; }
-
-        /* 카테고리 선택 구역 */
-        .category-zone { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
-        .cat-btn { padding: 9px 13px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); font-size: 0.85rem; cursor: pointer; font-weight: bold; color: var(--text-sub); }
-        .cat-btn.active { background: var(--point); color: var(--text-main); border-color: var(--point); box-shadow: 0 4px 10px rgba(255, 220, 163, 0.4); }
-        
-        /* 카테고리 추가 구역 */
-        .cat-manage-box { margin-top: 18px; padding-top: 15px; border-top: 1px dashed var(--border); }
-        .cat-manage-form { display: flex; gap: 6px; }
-        .cat-manage-form input { margin: 0; padding: 10px; font-size: 0.85rem; border-radius: 10px; background: var(--bg); }
-        .add-cat-btn { background: var(--text-sub); color: white; padding: 10px 14px; font-size: 0.85rem; border-radius: 10px; white-space: nowrap; }
-
-        /* 아기 생일 설정 구역 */
-        .birthday-box { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
-        .birthday-box input { background: var(--bg); margin: 5px 0 0 0; font-size: 0.9rem; font-weight: bold; text-align: center; }
-
-        /* 날짜 선택 및 내비게이션 */
-        .date-picker-zone { display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 18px; }
-        .nav-arrow-btn { background: var(--card-bg); border: 1px solid var(--border); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--text-sub); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .nav-arrow-btn:active { background: var(--sub-bg); }
-        
-        .date-input { padding: 9px 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.95rem; text-align: center; font-weight: bold; color: var(--text-main); background: var(--card-bg); width: 165px; margin: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.02); letter-spacing: -0.3px; }
-        .today-btn { background: var(--mint); color: var(--text-main); height: 38px; padding: 0 14px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 2px 6px rgba(206, 229, 208, 0.4); }
-        
-        /* 스케줄 리스트 및 캡쳐 구역 */
-        #capture-area { background: #ffffff; padding: 22px; border-radius: 26px; border: 1px solid var(--border); box-sizing: border-box; box-shadow: 0 10px 30px rgba(158, 142, 124, 0.04); }
-        .schedule-title { text-align: center; margin-bottom: 14px; color: var(--text-main); font-size: 1.1rem; font-weight: bold; border-bottom: 2px dashed var(--point); padding-bottom: 12px; letter-spacing: -0.5px; }
-        
-        .dday-container { display: block; text-align: center; font-size: 0.95rem; font-weight: bold; color: var(--accent); margin-top: 5px; }
-        .title-dday { font-weight: 800; }
-        .title-age { font-size: 0.85rem; color: var(--text-sub); margin-left: 6px; font-weight: 600; }
-        
-        .schedule-list { display: flex; flex-direction: column; gap: 12px; }
-        .schedule-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #faf9f5; position: relative; }
-        .schedule-item:last-child { border-bottom: none; padding-bottom: 0; }
-        
-        .item-emoji { font-size: 1.35rem; min-width: 28px; text-align: center; margin-top: 1px; }
-        .item-content { flex: 1; }
-        .item-time-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; flex-wrap: wrap; }
-        
-        .inline-time-input { font-size: 0.85rem; color: var(--text-sub); font-weight: bold; border: none; background: transparent; padding: 2px 0; width: 45px; margin: 0; text-align: center; }
-        .inline-time-input:focus { background: var(--sub-bg); outline: none; border-radius: 4px; }
-        
-        .inline-ampm-select { font-size: 0.82rem; color: var(--text-sub); font-weight: bold; border: 1px solid var(--border); background: #fff; padding: 2px 4px; border-radius: 6px; width: auto; margin: 0; cursor: pointer; }
-        .item-time-print-text { font-size: 0.85rem; color: var(--text-sub); font-weight: bold; display: none; }
-        
-        .item-text { font-size: 0.95rem; color: var(--text-main); margin: 0; width: 100%; border: none; background: transparent; resize: none; padding: 0; line-height: 1.45; }
-        .delete-btn { background: none; font-size: 1rem; cursor: pointer; opacity: 0.25; padding: 0; margin-left: 5px; align-self: center; }
-        .cat-select { font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: #fff; padding: 2px 4px; color: var(--text-sub); width: auto; margin: 0; font-weight: bold; }
-
-        /* 하단 백업 존 */
-        .backup-zone { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; padding: 15px; background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border); width: 100%; box-sizing: border-box; }
-        .backup-btn { flex: 1; font-size: 0.75rem; padding: 10px 5px; border-radius: 10px; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: bold; white-space: nowrap; color: var(--text-sub); }
-
-        /* 아이폰 스크린샷 맞춤형 컴팩트 감싸개 구역 */
-        .capture-preset-wrapper {
-            width: 100%;
-            max-width: 395px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            padding: 12px;
-            box-sizing: border-box;
-        }
-        .capture-preset-wrapper #capture-area { width: 100%; display: flex; flex-direction: column; }
-
-        /* 데이터가 아주 많을 때 글자크기 자동 압축 다이어트 */
-        .capture-preset-wrapper.ultra-compact .schedule-title { margin-bottom: 8px; padding-bottom: 8px; font-size: 1rem; }
-        .capture-preset-wrapper.ultra-compact .dday-container { font-size: 0.85rem; margin-top: 3px; }
-        .capture-preset-wrapper.ultra-compact #capture-area { padding: 14px; border-radius: 20px; }
-        .capture-preset-wrapper.ultra-compact .schedule-list { gap: 6px; }
-        .capture-preset-wrapper.ultra-compact .schedule-item { padding-bottom: 6px; gap: 8px; }
-        .capture-preset-wrapper.ultra-compact .item-emoji { font-size: 1.1rem; min-width: 22px; }
-        .capture-preset-wrapper.ultra-compact .item-time-print-text { font-size: 0.75rem; }
-        .capture-preset-wrapper.ultra-compact .item-text { font-size: 0.8rem; line-height: 1.3; }
-
-        /* 미리보기 캡쳐 전용 토글 처리 */
-        .hide-on-capture .delete-btn,
-        .hide-on-capture .cat-select,
-        .hide-on-capture .inline-time-input,
-        .hide-on-capture .inline-ampm-select { display: none !important; }
-        .hide-on-capture .item-time-print-text { display: inline-block !important; margin-right: 8px; }
-        .hide-on-capture .item-text { background: transparent !important; border: none !important; pointer-events: none; padding: 0; margin: 0; }
-
-        /* 📱 아이폰용 이미지 저장 전용 모달 스타일 */
-        .ios-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 9999;
-            justify-content: center;
             align-items: center;
-            flex-direction: column;
-            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
             box-sizing: border-box;
         }
-        .ios-modal-guide {
-            color: #ffffff;
+
+        .card {
+            background: var(--card-bg);
+            padding: 22px;
+            border-radius: 26px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(158, 142, 124, 0.05);
+            box-sizing: border-box;
+        }
+
+        #edit-view,
+        #preview-view {
+            width: 100%;
+        }
+
+        #preview-view {
+            display: none;
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+        }
+
+        h3 {
+            margin-top: 0;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 13px;
+            margin: 8px 0;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-sizing: border-box;
+            background: var(--sub-bg);
+            font-size: 16px;
+            color: var(--text-main);
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 14px;
+            font-weight: bold;
+            transition: 0.2s;
             font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--text-main);
+            color: white;
+            margin-top: 5px;
+            box-shadow: 0 4px 12px rgba(74, 64, 53, 0.15);
+        }
+
+        .save-btn:active {
+            background: #332b23;
+        }
+
+        .go-preview-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(255, 188, 163, 0.4);
+        }
+
+        .go-preview-btn:active {
+            opacity: 0.9;
+        }
+
+        .real-download-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--text-main);
+            color: white;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(74, 64, 53, 0.15);
+        }
+
+        .back-edit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--sub-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .category-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .cat-btn {
+            padding: 9px 13px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-sub);
+        }
+
+        .cat-btn.active {
+            background: var(--point);
+            color: var(--text-main);
+            border-color: var(--point);
+            box-shadow: 0 4px 10px rgba(255, 220, 163, 0.4);
+        }
+
+        .cat-manage-box {
+            margin-top: 18px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .cat-manage-form {
+            display: flex;
+            gap: 6px;
+        }
+
+        .cat-manage-form input {
+            margin: 0;
+            padding: 10px;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            background: var(--bg);
+        }
+
+        .add-cat-btn {
+            background: var(--text-sub);
+            color: white;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .birthday-box {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .birthday-box input {
+            background: var(--bg);
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
             font-weight: bold;
             text-align: center;
-            margin-bottom: 15px;
-            line-height: 1.5;
-            background: rgba(255, 112, 112, 0.2);
-            padding: 10px 20px;
+        }
+
+        .date-picker-zone {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .nav-arrow-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .nav-arrow-btn:active {
+            background: var(--sub-bg);
+        }
+
+        .date-input {
+            padding: 9px 14px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 188, 163, 0.3);
-        }
-        .ios-image-preview {
-            max-width: 100%;
-            max-height: 70vh;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .ios-close-btn {
-            margin-top: 20px;
-            background: #ffffff;
-            color: var(--text-main);
-            padding: 12px 35px;
+            border: 1px solid var(--border);
             font-size: 0.95rem;
-            border-radius: 14px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--text-main);
+            background: var(--card-bg);
+            width: 165px;
+            margin: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            letter-spacing: -0.3px;
+        }
+
+        .today-btn {
+            background: var(--mint);
+            color: var(--text-main);
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(206, 229, 208, 0.4);
+        }
+
+        .today-btn:active {
+            opacity: 0.8;
+        }
+
+        #capture-area {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 26px;
+            border: 1px solid var(--border);
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(158, 142, 124, 0.04);
+        }
+
+        .schedule-title {
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-bottom: 2px dashed var(--point);
+            padding-bottom: 14px;
+            letter-spacing: -0.5px;
+        }
+
+        .dday-container {
+            display: block;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 6px;
+        }
+
+        .title-dday {
+            font-weight: 800;
+        }
+
+        .title-age {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .schedule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #faf9f5;
+            position: relative;
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .item-emoji {
+            font-size: 1.4rem;
+            min-width: 30px;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-time-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .inline-time-input {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: bold;
+            border: none;
+            background: transparent;
+            padding: 2px 0;
+            width: 45px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .inline-time-input:focus {
+            background: var(--sub-bg);
+            outline: none;
+            border-radius: 4px;
+        }
+
+        .inline-ampm-select {
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            font-weight: bold;
+            border: 1px solid var(--border);
+            background: #fff;
+            padding: 2px 4px;
+            border-radius: 6px;
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .inline-ampm-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .item-time-print-text {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: bold;
+            display: none;
+        }
+
+        .item-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin: 0;
+            width: 100%;
+            border: none;
+            background: transparent;
+            resize: none;
+            padding: 0;
+            line-height: 1.5;
+            word-break: break-word;
+            white-space: pre-wrap;
+            font-family: inherit;
+        }
+
+        textarea.item-text {
+            overflow: hidden;
+        }
+
+        .item-text:focus {
+            background: var(--sub-bg);
+            outline: none;
+            border-radius: 4px;
+        }
+
+        .delete-btn {
+            background: none;
+            font-size: 1rem;
+            cursor: pointer;
+            opacity: 0.25;
+            padding: 0;
+            margin-left: 5px;
+            align-self: center;
+        }
+
+        .delete-btn:hover {
+            opacity: 0.8;
+        }
+
+        .cat-select {
+            font-size: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+            padding: 2px 4px;
+            color: var(--text-sub);
+            width: auto;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .backup-zone {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .backup-btn {
+            flex: 1;
+            font-size: 0.75rem;
+            padding: 10px 5px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+            color: var(--text-sub);
+        }
+
+        .backup-btn:hover {
+            background: var(--sub-bg);
+        }
+
+        .preview-top-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .preview-guide {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            text-align: center;
+            line-height: 1.5;
+            margin: 0 0 14px 0;
+        }
+
+        #preview-capture-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding-bottom: 16px;
+        }
+
+        .capture-preset-wrapper {
+            width: 430px;
+            min-height: 932px;
+            background: linear-gradient(to bottom, #faf9f5 0%, #fffdf8 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 24px;
+            box-sizing: border-box;
+            border-radius: 38px;
+            overflow: hidden;
+        }
+
+        .capture-preset-wrapper #capture-area {
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(158, 142, 124, 0.06);
+        }
+
+        .capture-only-time {
+            display: inline-block;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .empty-schedule-message {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 14px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .date-picker-zone {
+                gap: 6px;
+            }
+
+            .date-input {
+                width: 145px;
+                font-size: 0.9rem;
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .today-btn {
+                padding: 0 10px;
+            }
+
+            .capture-preset-wrapper {
+                width: 390px;
+                min-height: 844px;
+                padding: 18px;
+                border-radius: 32px;
+            }
+
+            .preview-top-buttons {
+                gap: 8px;
+            }
+
+            .real-download-btn,
+            .back-edit-btn {
+                font-size: 0.85rem;
+                padding: 13px 8px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .capture-preset-wrapper {
+                width: 360px;
+                min-height: 780px;
+                padding: 16px;
+            }
         }
     </style>
 </head>
-<body>
 
+<body>
 <div class="container">
-    
+
     <div id="edit-view">
         <div class="card">
             <h2>👶 베이비 스케줄러</h2>
+
             <input type="text" id="scheduleMemo" placeholder="내용을 입력하세요 (예: 잠, 이유식 50ml)">
-            
+
             <h3>카테고리 선택</h3>
             <div class="category-zone" id="categoryBtns"></div>
-            
+
             <button class="save-btn" onclick="saveSchedule()">즉시 기록하기</button>
 
             <div class="cat-manage-box">
@@ -209,39 +631,36 @@
         <button class="go-preview-btn" onclick="showPreviewView()">📸 스케줄 이미지로 다운받기</button>
 
         <div id="capture-area">
-            <div class="schedule-title" id="capture-title">2026년 05월 16일 스케줄</div>
+            <div class="schedule-title" id="capture-title">스케줄</div>
             <div class="schedule-list" id="scheduleList"></div>
         </div>
+
         <br>
 
         <div class="backup-zone">
             <button class="backup-btn" onclick="exportBabyData()">💾 백업</button>
             <button class="backup-btn" onclick="document.getElementById('mergeBabyFile').click()">🔄 통합</button>
             <button class="backup-btn" onclick="document.getElementById('importBabyFile').click()">📂 불러오기</button>
-            
-            <input type="file" id="mergeBabyFile" style="display:none;" onchange="mergeBabyData(event)">
-            <input type="file" id="importBabyFile" style="display:none;" onchange="importBabyData(event)">
+
+            <input type="file" id="mergeBabyFile" style="display:none;" accept=".json" onchange="mergeBabyData(event)">
+            <input type="file" id="importBabyFile" style="display:none;" accept=".json" onchange="importBabyData(event)">
         </div>
     </div>
 
     <div id="preview-view">
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <div class="preview-top-buttons">
             <button class="back-edit-btn" onclick="hidePreviewView()" style="flex: 1; margin-bottom: 0;">⬅️ 돌아가기</button>
-            <button class="real-download-btn" onclick="openIosSaveModal()" style="flex: 1.5; margin-bottom: 0;">💾 이미지 저장</button>
+            <button class="real-download-btn" id="downloadImageBtn" onclick="executeDownload()" style="flex: 1.5; margin-bottom: 0;">💾 이미지 저장</button>
         </div>
-        <div id="preview-capture-container" style="width: 100%; display: flex; justify-content: center; overflow: hidden;"></div>
+
+        <p class="preview-guide">
+            맥북/PC에서는 PNG 파일로 다운로드돼요.<br>
+            아이폰에서는 공유창이 뜨면 “이미지 저장”을 눌러 사진앱에 저장해줘요.
+        </p>
+
+        <div id="preview-capture-container"></div>
     </div>
 
-</div>
-
-<div id="iosSaveModal" class="ios-modal">
-    <div class="ios-modal-guide">
-        💡 아이폰 포토앱 저장 방법<br>
-        아래 이미지를 <span style="color:var(--accent);">1초간 꾹~ 누른 뒤</span><br>
-        <b>[사진 앱에 저장]</b> 또는 <b>[사진에 추가]</b>를 눌러줘!
-    </div>
-    <img id="iosImageElement" class="ios-image-preview" alt="스케줄 이미지 스크린샷">
-    <button class="ios-close-btn" onclick="closeIosSaveModal()">닫기</button>
 </div>
 
 <script>
@@ -251,7 +670,7 @@
         { emoji: '🥣', name: '이유식' },
         { emoji: '💩', name: '배변' }
     ];
-    
+
     let selectedCategoryIndex = 0;
 
     window.onload = () => {
@@ -259,12 +678,15 @@
         if (savedBirth) {
             document.getElementById('babyBirthDate').value = savedBirth;
         }
+
+        renderCategories();
         goToday();
     };
 
     function formatBirthInput(obj) {
         let val = obj.value.replace(/[^0-9]/g, '');
         let len = val.length;
+
         if (len >= 5 && len <= 6) {
             obj.value = val.substring(0, 4) + '/' + val.substring(4);
         } else if (len >= 7) {
@@ -276,33 +698,56 @@
 
     function convertTo12HourFormat(time24) {
         if (!time24 || !time24.includes(':')) return time24;
+
         let [hours, minutes] = time24.split(':');
-        hours = parseInt(hours);
+        hours = parseInt(hours, 10);
+
+        if (Number.isNaN(hours)) return time24;
+
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
         hours = hours ? hours : 12;
+
         return `${hours}:${minutes} ${ampm}`;
     }
 
     function convertTo24HourFormat(time12) {
-        let str = time12.toUpperCase().trim();
-        if(!str.includes('AM') && !str.includes('PM')) return str;
+        if (!time12) return '';
+
+        let str = String(time12).toUpperCase().trim();
+
+        if (!str.includes('AM') && !str.includes('PM')) {
+            const parts = str.split(':');
+            if (parts.length === 2) {
+                return `${String(parts[0]).padStart(2, '0')}:${String(parts[1]).padStart(2, '0')}`;
+            }
+            return str;
+        }
+
         const ampm = str.includes('PM') ? 'PM' : 'AM';
         let cleanTime = str.replace('AM', '').replace('PM', '').trim();
         let [hours, minutes] = cleanTime.split(':');
-        hours = parseInt(hours);
+
+        hours = parseInt(hours, 10);
+        minutes = minutes || '00';
+
+        if (Number.isNaN(hours)) return str;
+
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
+
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     }
 
     function saveBirthDate() {
         const birthVal = document.getElementById('babyBirthDate').value;
         const regex = /^\d{4}\/\d{2}\/\d{2}$/;
+
         if (birthVal && !regex.test(birthVal)) {
             alert("올바른 포맷(YYYY/MM/DD)으로 입력해줘 바니!");
             return;
         }
+
         localStorage.setItem('babyBirthDate', birthVal);
         displaySchedules();
     }
@@ -310,29 +755,39 @@
     function getDDayString(targetDateStr) {
         let birthStr = localStorage.getItem('babyBirthDate');
         if (!birthStr || !targetDateStr) return "";
+
         birthStr = birthStr.replace(/\//g, '-');
+
         const birth = new Date(birthStr + "T00:00:00");
         const target = new Date(targetDateStr + "T00:00:00");
+
         if (isNaN(birth.getTime())) return "";
 
         const diffTime = target.getTime() - birth.getTime();
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
         let ddaySection = "";
         let ageSection = "";
 
         if (diffDays >= 0) {
             ddaySection = `<span class="title-dday">D+${diffDays + 1}</span>`;
+
             let start = new Date(birth);
             let months = 0;
+
             while (true) {
                 let nextMonth = new Date(start);
                 nextMonth.setMonth(nextMonth.getMonth() + 1);
+
                 if (nextMonth > target) break;
+
                 start = nextMonth;
                 months++;
             }
+
             const remTime = target.getTime() - start.getTime();
             const remDays = Math.floor(remTime / (1000 * 60 * 60 * 24));
+
             if (months === 0 && remDays === 0) {
                 ageSection = `<span class="title-age">(태어난 당일)</span>`;
             } else if (months === 0) {
@@ -346,22 +801,36 @@
             ddaySection = `<span class="title-dday">D${diffDays}</span>`;
             ageSection = `<span class="title-age">(출생 전)</span>`;
         }
+
         return `<span class="dday-container">${ddaySection}${ageSection}</span>`;
     }
 
     function goToday() {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const today = new Date();
+        const todayStr = getLocalDateString(today);
+
         document.getElementById('viewDate').value = todayStr;
+
         renderCategories();
         displaySchedules();
     }
 
+    function getLocalDateString(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+
+        return `${y}-${m}-${d}`;
+    }
+
     function renderCategories() {
         const btnZone = document.getElementById('categoryBtns');
+
         btnZone.innerHTML = categories.map((cat, idx) => {
             let activeClass = idx === selectedCategoryIndex ? 'active' : '';
-            return `<button class="cat-btn ${activeClass}" onclick="selectCategory(${idx})">${cat.emoji} ${cat.name}</button>`;
+            return `<button class="cat-btn ${activeClass}" onclick="selectCategory(${idx})">${escapeHtml(cat.emoji)} ${escapeHtml(cat.name)}</button>`;
         }).join('');
+
         localStorage.setItem('babyCategories', JSON.stringify(categories));
     }
 
@@ -373,118 +842,177 @@
     function addCategory() {
         const emojiInput = document.getElementById('newCatEmoji');
         const nameInput = document.getElementById('newCatName');
-        if(!emojiInput.value || !nameInput.value) return alert("이모지와 이름을 모두 입력해줘!");
-        categories.push({ emoji: emojiInput.value, name: nameInput.value });
+
+        if (!emojiInput.value.trim() || !nameInput.value.trim()) {
+            alert("이모지와 이름을 모두 입력해줘!");
+            return;
+        }
+
+        categories.push({
+            emoji: emojiInput.value.trim(),
+            name: nameInput.value.trim()
+        });
+
         selectedCategoryIndex = categories.length - 1;
-        emojiInput.value = ''; nameInput.value = '';
-        renderCategories(); displaySchedules();
+
+        emojiInput.value = '';
+        nameInput.value = '';
+
+        renderCategories();
+        displaySchedules();
+
         alert("새로운 카테고리가 등록되었어요 🌟");
     }
 
     function changeViewDate(days) {
         const dateInput = document.getElementById('viewDate');
         if (!dateInput.value) return;
-        const current = new Date(dateInput.value);
+
+        const current = new Date(dateInput.value + 'T00:00:00');
         current.setDate(current.getDate() + days);
-        dateInput.value = current.toISOString().split('T')[0];
+
+        dateInput.value = getLocalDateString(current);
         displaySchedules();
     }
 
     function saveSchedule() {
         const memoInput = document.getElementById('scheduleMemo');
-        if(!memoInput.value) return alert("내용을 입력해주세요!");
+
+        if (!memoInput.value.trim()) {
+            alert("내용을 입력해주세요!");
+            return;
+        }
 
         const now = new Date();
         const viewDateVal = document.getElementById('viewDate').value;
+
         const rawTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         const timeStr = convertTo12HourFormat(rawTimeStr);
 
         let matchedIndex = selectedCategoryIndex;
+
         categories.forEach((cat, idx) => {
-            if(memoInput.value.includes(cat.name)) matchedIndex = idx;
+            if (memoInput.value.includes(cat.name)) {
+                matchedIndex = idx;
+            }
         });
 
         const newLog = {
             id: Date.now(),
             time: timeStr,
             categoryName: categories[matchedIndex].name,
-            memo: memoInput.value
+            memo: memoInput.value.trim()
         };
 
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
-        if (!allLogs[viewDateVal]) allLogs[viewDateVal] = [];
+
+        if (!allLogs[viewDateVal]) {
+            allLogs[viewDateVal] = [];
+        }
+
         allLogs[viewDateVal].push(newLog);
+
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
+
         memoInput.value = '';
+
         displaySchedules();
     }
 
-    function displaySchedules() {
-        const viewDateVal = document.getElementById('viewDate').value;
-        if(!viewDateVal) return;
-
-        const d = viewDateVal.split('-');
-        const ddayHtml = getDDayString(viewDateVal);
-        document.getElementById('capture-title').innerHTML = `<div>${d[0]}년 ${d[1]}월 ${d[2]}일 스케줄</div>${ddayHtml}`;
-
+    function getSortedDayLogs(dateValue) {
         const allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
-        const dayLogs = allLogs[viewDateVal] || [];
+        const dayLogs = allLogs[dateValue] || [];
 
-        dayLogs.sort((a, b) => {
+        return [...dayLogs].sort((a, b) => {
             let timeA = convertTo24HourFormat(a.time);
             let timeB = convertTo24HourFormat(b.time);
             return timeA.localeCompare(timeB);
         });
+    }
 
+    function displaySchedules() {
+        const viewDateVal = document.getElementById('viewDate').value;
+        if (!viewDateVal) return;
+
+        const d = viewDateVal.split('-');
+        const ddayHtml = getDDayString(viewDateVal);
+
+        document.getElementById('capture-title').innerHTML = `
+            <div>${d[0]}년 ${d[1]}월 ${d[2]}일 스케줄</div>
+            ${ddayHtml}
+        `;
+
+        const dayLogs = getSortedDayLogs(viewDateVal);
         const listZone = document.getElementById('scheduleList');
-        if(dayLogs.length === 0) {
-            listZone.innerHTML = `<p style="text-align:center; color:var(--text-sub); font-size:0.9rem; margin:20px 0;">기록된 아기 스케줄이 비어있어요 🧸</p>`;
+
+        if (dayLogs.length === 0) {
+            listZone.innerHTML = `<p class="empty-schedule-message">기록된 아기 스케줄이 비어있어요 🧸</p>`;
             return;
         }
 
         const ampmOpts = ['AM', 'PM'];
-        listZone.innerHTML = dayLogs.map((log) => {
-            const catObj = categories.find(c => c.name === log.categoryName) || { emoji: '✨', name: log.categoryName };
-            const catOptions = categories.map(c => `<option value="${c.name}" ${c.name === log.categoryName ? 'selected' : ''}>${c.emoji} ${c.name}</option>`).join('');
-            const displayTime = log.time.includes('M') ? log.time : convertTo12HourFormat(log.time);
 
-            let cleanTime = displayTime.replace('AM','').replace('PM','').trim();
-            let currAmpm = displayTime.includes('PM') ? 'PM' : 'AM';
-            const inlineAmpmHtml = ampmOpts.map(o => `<option value="${o}" ${o===currAmpm?'selected':''}>${o}</option>`).join('');
+        listZone.innerHTML = dayLogs.map((log) => {
+            const catObj = categories.find(c => c.name === log.categoryName) || { emoji: '✨', name: log.categoryName || '기타' };
+
+            const catOptions = categories.map(c =>
+                `<option value="${escapeAttr(c.name)}" ${c.name === log.categoryName ? 'selected' : ''}>${escapeHtml(c.emoji)} ${escapeHtml(c.name)}</option>`
+            ).join('');
+
+            const displayTime = String(log.time || '').includes('M') ? log.time : convertTo12HourFormat(log.time);
+
+            let cleanTime = String(displayTime).replace('AM','').replace('PM','').trim();
+            let currAmpm = String(displayTime).includes('PM') ? 'PM' : 'AM';
+
+            const inlineAmpmHtml = ampmOpts.map(o => `<option value="${o}" ${o === currAmpm ? 'selected' : ''}>${o}</option>`).join('');
 
             return `
                 <div class="schedule-item">
-                    <div class="item-emoji">${catObj.emoji}</div>
+                    <div class="item-emoji">${escapeHtml(catObj.emoji)}</div>
                     <div class="item-content">
                         <div class="item-time-row">
-                            <span class="item-time-print-text">${displayTime}</span>
-                            <input type="text" class="inline-time-input" value="${cleanTime}" onchange="updateInlineTimeStr(${log.id}, this.value)">
-                            <select class="inline-ampm-select" onchange="updateInlineAmpm(${log.id}, this.value)">${inlineAmpmHtml}</select>
-                            <select class="cat-select" onchange="updateInline(${log.id}, 'categoryName', this.value)">${catOptions}</select>
+                            <span class="item-time-print-text">${escapeHtml(displayTime)}</span>
+
+                            <input type="text" class="inline-time-input" value="${escapeAttr(cleanTime)}" onchange="updateInlineTimeStr(${log.id}, this.value)">
+
+                            <select class="inline-ampm-select" onchange="updateInlineAmpm(${log.id}, this.value)">
+                                ${inlineAmpmHtml}
+                            </select>
+
+                            <select class="cat-select" onchange="updateInline(${log.id}, 'categoryName', this.value)">
+                                ${catOptions}
+                            </select>
                         </div>
-                        <textarea class="item-text" rows="1" onchange="updateInline(${log.id}, 'memo', this.value)" oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px'">${log.memo}</textarea>
+
+                        <textarea class="item-text" rows="1" onchange="updateInline(${log.id}, 'memo', this.value)" oninput="autoResizeTextarea(this)">${escapeHtml(log.memo)}</textarea>
                     </div>
+
                     <button class="delete-btn" onclick="deleteSchedule(${log.id})">🗑️</button>
                 </div>
             `;
         }).join('');
-        
-        document.querySelectorAll('.item-text').forEach(el => {
-            el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px';
-        });
+
+        document.querySelectorAll('.item-text').forEach(autoResizeTextarea);
+    }
+
+    function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
     }
 
     function updateInlineTimeStr(id, newTimeStr) {
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
+
         dayLogs = dayLogs.map(log => {
-            if(log.id === id) {
-                let currentAmpm = log.time.includes('PM') ? 'PM' : 'AM';
+            if (Number(log.id) === Number(id)) {
+                let currentAmpm = String(log.time || '').includes('PM') ? 'PM' : 'AM';
                 log.time = `${newTimeStr.trim()} ${currentAmpm}`;
             }
             return log;
         });
+
         allLogs[viewDateVal] = dayLogs;
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
@@ -494,13 +1022,15 @@
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
+
         dayLogs = dayLogs.map(log => {
-            if(log.id === id) {
-                let cleanTime = log.time.replace('AM','').replace('PM','').trim();
+            if (Number(log.id) === Number(id)) {
+                let cleanTime = String(log.time || '').replace('AM','').replace('PM','').trim();
                 log.time = `${cleanTime} ${newAmpm}`;
             }
             return log;
         });
+
         allLogs[viewDateVal] = dayLogs;
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
@@ -510,131 +1040,417 @@
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
+
         dayLogs = dayLogs.map(log => {
-            if(log.id === id) log[field] = value;
+            if (Number(log.id) === Number(id)) {
+                log[field] = value;
+            }
             return log;
         });
+
         allLogs[viewDateVal] = dayLogs;
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
     }
 
     function deleteSchedule(id) {
-        if(!confirm("이 일정을 타임라인에서 삭제할까요?")) return;
+        if (!confirm("이 일정을 타임라인에서 삭제할까요?")) return;
+
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
-        allLogs[viewDateVal] = dayLogs.filter(log => log.id !== id);
+
+        allLogs[viewDateVal] = dayLogs.filter(log => Number(log.id) !== Number(id));
+
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
     }
 
-    function showPreviewView() {
-        const originTarget = document.getElementById('capture-area');
-        const clone = originTarget.cloneNode(true);
-        clone.classList.add('hide-on-capture');
-        
-        const originTextareas = originTarget.querySelectorAll('.item-text');
-        const cloneTextareas = clone.querySelectorAll('.item-text');
-        originTextareas.forEach((textarea, idx) => { cloneTextareas[idx].value = textarea.value; });
+    function createPreviewScheduleElement() {
+        const viewDateVal = document.getElementById('viewDate').value;
+        const d = viewDateVal.split('-');
+        const ddayHtml = getDDayString(viewDateVal);
+        const dayLogs = getSortedDayLogs(viewDateVal);
 
         const wrapper = document.createElement('div');
         wrapper.className = 'capture-preset-wrapper';
         wrapper.id = 'capture-preset-target';
-        wrapper.appendChild(clone);
 
-        const itemsCount = clone.querySelectorAll('.schedule-item').length;
-        if (itemsCount >= 13) wrapper.classList.add('ultra-compact');
+        const captureArea = document.createElement('div');
+        captureArea.id = 'capture-area';
 
-        const container = document.getElementById('preview-capture-container');
-        container.innerHTML = ''; container.appendChild(wrapper);
+        const title = document.createElement('div');
+        title.className = 'schedule-title';
+        title.innerHTML = `
+            <div>${d[0]}년 ${d[1]}월 ${d[2]}일 스케줄</div>
+            ${ddayHtml}
+        `;
 
-        document.getElementById('edit-view').style.display = 'none';
-        document.getElementById('preview-view').style.display = 'block';
-        window.scrollTo(0, 0);
+        const list = document.createElement('div');
+        list.className = 'schedule-list';
+
+        if (dayLogs.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'empty-schedule-message';
+            empty.textContent = '기록된 아기 스케줄이 비어있어요 🧸';
+            list.appendChild(empty);
+        } else {
+            dayLogs.forEach(log => {
+                const catObj = categories.find(c => c.name === log.categoryName) || { emoji: '✨', name: log.categoryName || '기타' };
+                const displayTime = String(log.time || '').includes('M') ? log.time : convertTo12HourFormat(log.time);
+
+                const item = document.createElement('div');
+                item.className = 'schedule-item';
+
+                const emoji = document.createElement('div');
+                emoji.className = 'item-emoji';
+                emoji.textContent = catObj.emoji;
+
+                const content = document.createElement('div');
+                content.className = 'item-content';
+
+                const timeRow = document.createElement('div');
+                timeRow.className = 'item-time-row';
+
+                const time = document.createElement('span');
+                time.className = 'capture-only-time';
+                time.textContent = displayTime;
+
+                const memo = document.createElement('div');
+                memo.className = 'item-text';
+                memo.textContent = log.memo || '';
+
+                timeRow.appendChild(time);
+                content.appendChild(timeRow);
+                content.appendChild(memo);
+
+                item.appendChild(emoji);
+                item.appendChild(content);
+
+                list.appendChild(item);
+            });
+        }
+
+        captureArea.appendChild(title);
+        captureArea.appendChild(list);
+        wrapper.appendChild(captureArea);
+
+        return wrapper;
+    }
+
+    function showPreviewView() {
+        try {
+            const container = document.getElementById('preview-capture-container');
+            container.innerHTML = '';
+
+            const previewElement = createPreviewScheduleElement();
+            container.appendChild(previewElement);
+
+            document.getElementById('edit-view').style.display = 'none';
+            document.getElementById('preview-view').style.display = 'block';
+
+            window.scrollTo(0, 0);
+        } catch (err) {
+            console.error(err);
+            alert("미리보기를 만드는 중 문제가 생겼어 ㅠㅠ");
+        }
     }
 
     function hidePreviewView() {
         document.getElementById('preview-view').style.display = 'none';
         document.getElementById('edit-view').style.display = 'block';
+
+        const container = document.getElementById('preview-capture-container');
+        container.innerHTML = '';
+
         displaySchedules();
     }
 
-    /* 📸 [핵심 로직] 아이폰 사진첩 저장을 유도하는 팝업 생성 */
-    function openIosSaveModal() {
-        const target = document.getElementById('capture-preset-target');
-        
-        html2canvas(target, {
-            backgroundColor: "#faf9f5",
-            scale: 3,
-            useCORS: true
-        }).then(canvas => {
-            const imgDataUrl = canvas.toDataURL('image/png');
-            document.getElementById('iosImageElement').src = imgDataUrl;
-            document.getElementById('iosSaveModal').style.display = 'flex';
-        });
+    function ensureHtml2CanvasLoaded() {
+        if (window.html2canvas) {
+            return Promise.resolve();
+        }
+
+        const sources = [
+            "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+            "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
+            "https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js",
+            "https://html2canvas.hertzenberg.com/dist/html2canvas.min.js"
+        ];
+
+        function loadScript(index) {
+            return new Promise((resolve, reject) => {
+                if (window.html2canvas) {
+                    resolve();
+                    return;
+                }
+
+                if (index >= sources.length) {
+                    reject(new Error("html2canvas load failed"));
+                    return;
+                }
+
+                const existing = document.querySelector(`script[data-html2canvas-loader="${index}"]`);
+                if (existing) {
+                    existing.addEventListener('load', () => resolve());
+                    existing.addEventListener('error', () => loadScript(index + 1).then(resolve).catch(reject));
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = sources[index];
+                script.async = true;
+                script.dataset.html2canvasLoader = String(index);
+
+                script.onload = () => {
+                    if (window.html2canvas) {
+                        resolve();
+                    } else {
+                        loadScript(index + 1).then(resolve).catch(reject);
+                    }
+                };
+
+                script.onerror = () => {
+                    script.remove();
+                    loadScript(index + 1).then(resolve).catch(reject);
+                };
+
+                document.head.appendChild(script);
+            });
+        }
+
+        return loadScript(0);
     }
 
-    function closeIosSaveModal() {
-        document.getElementById('iosSaveModal').style.display = 'none';
-        hidePreviewView();
+    async function executeDownload() {
+        const target = document.getElementById('capture-preset-target');
+        const downloadBtn = document.getElementById('downloadImageBtn');
+
+        if (!target) {
+            alert("미리보기 화면을 먼저 열어줘!");
+            return;
+        }
+
+        try {
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = "이미지 저장 기능 준비 중...";
+
+            await ensureHtml2CanvasLoaded();
+
+            downloadBtn.textContent = "이미지 만드는 중...";
+
+            await new Promise(resolve => setTimeout(resolve, 250));
+
+            const canvas = await html2canvas(target, {
+                backgroundColor: "#faf9f5",
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: document.documentElement.clientWidth,
+                windowHeight: document.documentElement.clientHeight
+            });
+
+            const fileName = `${document.getElementById('viewDate').value}_스케줄.png`;
+
+            canvas.toBlob(async function(blob) {
+                if (!blob) {
+                    alert("이미지 파일을 만드는 데 실패했어 ㅠㅠ");
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = "💾 이미지 저장";
+                    return;
+                }
+
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                if (isIOS && navigator.share) {
+                    const file = new File([blob], fileName, { type: "image/png" });
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: "베이비 스케줄"
+                            });
+
+                            downloadBtn.disabled = false;
+                            downloadBtn.textContent = "💾 이미지 저장";
+                            return;
+                        } catch (shareErr) {
+                            console.warn("공유창이 취소되었거나 실패했어요.", shareErr);
+                        }
+                    }
+                }
+
+                const imageUrl = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = fileName;
+                link.style.display = 'none';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setTimeout(() => {
+                    URL.revokeObjectURL(imageUrl);
+                }, 3000);
+
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = "💾 이미지 저장";
+
+            }, "image/png");
+
+        } catch (err) {
+            console.error(err);
+
+            if (String(err && err.message || '').includes('html2canvas load failed')) {
+                alert("이미지 저장 기능을 불러오지 못했어 ㅠㅠ 인터넷이 연결된 상태에서 다시 열거나, GitHub Pages 주소로 열어줘!");
+            } else {
+                alert("이미지 저장 중 문제가 생겼어 ㅠㅠ 미리보기는 보이면, 화면 캡처로 먼저 저장해도 돼!");
+            }
+
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = "💾 이미지 저장";
+        }
     }
 
     function exportBabyData() {
         const logs = localStorage.getItem('babySchedules') || '{}';
-        if(logs === '{}') return alert("백업할 데이터가 비어있어요!");
-        const data = JSON.stringify({ schedules: JSON.parse(logs), categories: categories }, null, 2);
-        const blob = new Blob([data], {type: "application/json"});
+
+        if (logs === '{}') {
+            alert("백업할 데이터가 비어있어요!");
+            return;
+        }
+
+        const data = JSON.stringify({
+            schedules: JSON.parse(logs),
+            categories: categories,
+            babyBirthDate: localStorage.getItem('babyBirthDate') || ''
+        }, null, 2);
+
+        const blob = new Blob([data], { type: "application/json" });
         const url = URL.createObjectURL(blob);
+
         const a = document.createElement('a');
-        a.href = url; a.download = `베이비스케줄 백업_phone.json`; a.click();
+        a.href = url;
+        a.download = `베이비스케줄 백업.json`;
+        a.click();
+
+        URL.revokeObjectURL(url);
     }
 
     function mergeBabyData(event) {
-        const file = event.target.files[0]; if(!file) return;
+        const file = event.target.files[0];
+        if (!file) return;
+
         const reader = new FileReader();
+
         reader.onload = (e) => {
             try {
                 const imported = JSON.parse(e.target.result);
                 let currentSchedules = JSON.parse(localStorage.getItem('babySchedules') || '{}');
+
                 let importedSchedules = imported.schedules || {};
+
                 for (let date in importedSchedules) {
-                    if (!currentSchedules[date]) currentSchedules[date] = [];
+                    if (!currentSchedules[date]) {
+                        currentSchedules[date] = [];
+                    }
+
                     const combined = [...importedSchedules[date], ...currentSchedules[date]];
                     currentSchedules[date] = Array.from(new Map(combined.map(item => [item.id, item])).values());
                 }
+
                 localStorage.setItem('babySchedules', JSON.stringify(currentSchedules));
+
                 if (imported.categories) {
                     imported.categories.forEach(impCat => {
-                        if (!categories.some(c => c.name === impCat.name)) categories.push(impCat);
+                        if (!categories.some(c => c.name === impCat.name)) {
+                            categories.push(impCat);
+                        }
                     });
+
                     localStorage.setItem('babyCategories', JSON.stringify(categories));
                 }
-                renderCategories(); displaySchedules();
+
+                if (imported.babyBirthDate && !localStorage.getItem('babyBirthDate')) {
+                    localStorage.setItem('babyBirthDate', imported.babyBirthDate);
+                    document.getElementById('babyBirthDate').value = imported.babyBirthDate;
+                }
+
+                renderCategories();
+                displaySchedules();
+
                 alert("기존 스케줄에 새로운 백업 데이터를 병합했어! 🔋");
-            } catch(err) { alert("파일 형식을 다시 확인해주세요 ㅠㅠ"); }
+            } catch (err) {
+                alert("파일 형식을 다시 확인해주세요 ㅠㅠ");
+            }
         };
-        reader.readAsText(file); event.target.value = '';
+
+        reader.readAsText(file);
+        event.target.value = '';
     }
 
     function importBabyData(event) {
-        const file = event.target.files[0]; if(!file) return;
-        if(!confirm("기존의 스케줄 내역이 전부 사라지고 새로 불러와져요. 진행할까요?")) return;
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!confirm("기존의 스케줄 내역이 전부 사라지고 새로 불러와져요. 진행할까요?")) {
+            event.target.value = '';
+            return;
+        }
+
         const reader = new FileReader();
+
         reader.onload = (e) => {
             try {
                 const imported = JSON.parse(e.target.result);
-                if (imported.schedules) localStorage.setItem('babySchedules', JSON.stringify(imported.schedules));
-                else localStorage.setItem('babySchedules', JSON.stringify(imported));
+
+                if (imported.schedules) {
+                    localStorage.setItem('babySchedules', JSON.stringify(imported.schedules));
+                } else {
+                    localStorage.setItem('babySchedules', JSON.stringify(imported));
+                }
+
                 if (imported.categories) {
                     categories = imported.categories;
                     localStorage.setItem('babyCategories', JSON.stringify(categories));
                 }
-                renderCategories(); displaySchedules();
+
+                if (imported.babyBirthDate) {
+                    localStorage.setItem('babyBirthDate', imported.babyBirthDate);
+                    document.getElementById('babyBirthDate').value = imported.babyBirthDate;
+                }
+
+                renderCategories();
+                displaySchedules();
+
                 alert("스케줄 데이터 전체 복구 성공! 🔋");
-            } catch(err) { alert("파일 형식을 확인해주세요 ㅠㅠ"); }
+            } catch (err) {
+                alert("파일 형식을 확인해주세요 ㅠㅠ");
+            }
         };
-        reader.readAsText(file); event.target.value = '';
+
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    function escapeHtml(text) {
+        return String(text || '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function escapeAttr(text) {
+        return escapeHtml(text).replaceAll('`', '&#096;');
     }
 </script>
 </body>
