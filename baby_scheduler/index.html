@@ -68,38 +68,37 @@
         
         .date-input { padding: 9px 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.95rem; text-align: center; font-weight: bold; color: var(--text-main); background: var(--card-bg); width: 165px; margin: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.02); letter-spacing: -0.3px; }
         
-        /* 상큼한 애플민트 톤의 오늘 버튼 */
+        /* 오늘 버튼 */
         .today-btn { background: var(--mint); color: var(--text-main); height: 38px; padding: 0 14px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 2px 6px rgba(206, 229, 208, 0.4); }
         .today-btn:active { opacity: 0.8; }
         
         /* 스케줄 리스트 및 캡쳐 구역 */
-        #capture-area { background: #ffffff; padding: 25px; border-radius: 26px; border: 1px solid var(--border); box-sizing: border-box; box-shadow: 0 10px 30px rgba(158, 142, 124, 0.04); }
-        .schedule-title { text-align: center; margin-bottom: 16px; color: var(--text-main); font-size: 1.1rem; font-weight: bold; border-bottom: 2px dashed var(--point); padding-bottom: 14px; letter-spacing: -0.5px; }
+        #capture-area { background: #ffffff; padding: 22px; border-radius: 26px; border: 1px solid var(--border); box-sizing: border-box; box-shadow: 0 10px 30px rgba(158, 142, 124, 0.04); }
+        .schedule-title { text-align: center; margin-bottom: 14px; color: var(--text-main); font-size: 1.1rem; font-weight: bold; border-bottom: 2px dashed var(--point); padding-bottom: 12px; letter-spacing: -0.5px; }
         
         /* 디데이 표시 구역 스타일 */
-        .dday-container { display: block; text-align: center; font-size: 0.95rem; font-weight: bold; color: var(--accent); margin-top: 6px; }
+        .dday-container { display: block; text-align: center; font-size: 0.95rem; font-weight: bold; color: var(--accent); margin-top: 5px; }
         .title-dday { font-weight: 800; }
         .title-age { font-size: 0.85rem; color: var(--text-sub); margin-left: 6px; font-weight: 600; }
         
-        .schedule-list { display: flex; flex-direction: column; gap: 14px; }
-        .schedule-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #faf9f5; position: relative; }
+        .schedule-list { display: flex; flex-direction: column; gap: 12px; }
+        .schedule-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #faf9f5; position: relative; }
         .schedule-item:last-child { border-bottom: none; padding-bottom: 0; }
         
-        .item-emoji { font-size: 1.4rem; min-width: 30px; text-align: center; margin-top: 2px; }
+        .item-emoji { font-size: 1.35rem; min-width: 28px; text-align: center; margin-top: 1px; }
         .item-content { flex: 1; }
         .item-time-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; flex-wrap: wrap; }
         
-        /* ⏰ 입력용 텍스트 필드와 드롭다운 조화로운 믹스 매치 */
+        /* 입력 컴포넌트 */
         .inline-time-input { font-size: 0.85rem; color: var(--text-sub); font-weight: bold; border: none; background: transparent; padding: 2px 0; width: 45px; margin: 0; text-align: center; }
         .inline-time-input:focus { background: var(--sub-bg); outline: none; border-radius: 4px; }
         
         .inline-ampm-select { font-size: 0.82rem; color: var(--text-sub); font-weight: bold; border: 1px solid var(--border); background: #fff; padding: 2px 4px; border-radius: 6px; width: auto; margin: 0; cursor: pointer; }
         .inline-ampm-select:focus { outline: none; border-color: var(--accent); }
         
-        /* 📸 이미지 캡쳐본 저장용 글자 (평소엔 숨겨둠) */
         .item-time-print-text { font-size: 0.85rem; color: var(--text-sub); font-weight: bold; display: none; }
         
-        .item-text { font-size: 0.95rem; color: var(--text-main); margin: 0; width: 100%; border: none; background: transparent; resize: none; padding: 0; line-height: 1.5; }
+        .item-text { font-size: 0.95rem; color: var(--text-main); margin: 0; width: 100%; border: none; background: transparent; resize: none; padding: 0; line-height: 1.45; }
         .item-text:focus { background: var(--sub-bg); outline: none; border-radius: 4px; }
         
         .delete-btn { background: none; font-size: 1rem; cursor: pointer; opacity: 0.25; padding: 0; margin-left: 5px; align-self: center; }
@@ -112,13 +111,14 @@
         .backup-btn { flex: 1; font-size: 0.75rem; padding: 10px 5px; border-radius: 10px; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: bold; white-space: nowrap; color: var(--text-sub); }
         .backup-btn:hover { background: var(--sub-bg); }
 
-        /* 📸 불필요한 위아래 공백 제거! 카드 알맹이에 딱 핏되는 캡처 감싸개 */
+        /* 📸 아이폰 스크린샷 맞춤형 컴팩트 감싸개 구역 */
         .capture-preset-wrapper {
-            width: 395px;          /* 아이폰 화면 폭에 딱 예쁘게 맞는 너비 */
+            width: 100%;
+            max-width: 395px;      /* 아이폰 최적 너비 가이드 */
             background-color: var(--bg);
             display: flex;
             flex-direction: column;
-            padding: 16px;         /* 바깥 테두리 여백 최소화 */
+            padding: 12px;         /* 화면에 최대한 알차게 담기 위해 여백 압축 */
             box-sizing: border-box;
         }
         
@@ -128,7 +128,17 @@
             flex-direction: column;
         }
 
-        /* 📸 캡쳐/미리보기 시 테두리 지우고 글씨만 완성형으로 보여주기 */
+        /* 📸 데이터가 아주 많을 때(초비상 모드) 글자크기 및 여백 강제 다이어트 */
+        .capture-preset-wrapper.ultra-compact .schedule-title { margin-bottom: 8px; padding-bottom: 8px; font-size: 1rem; }
+        .capture-preset-wrapper.ultra-compact .dday-container { font-size: 0.85rem; margin-top: 3px; }
+        .capture-preset-wrapper.ultra-compact #capture-area { padding: 14px; border-radius: 20px; }
+        .capture-preset-wrapper.ultra-compact .schedule-list { gap: 6px; }
+        .capture-preset-wrapper.ultra-compact .schedule-item { padding-bottom: 6px; gap: 8px; }
+        .capture-preset-wrapper.ultra-compact .item-emoji { font-size: 1.1rem; min-width: 22px; }
+        .capture-preset-wrapper.ultra-compact .item-time-print-text { font-size: 0.75rem; }
+        .capture-preset-wrapper.ultra-compact .item-text { font-size: 0.8rem; line-height: 1.3; }
+
+        /* 미리보기 캡쳐 전용 토글 처리 */
         .hide-on-capture .delete-btn,
         .hide-on-capture .cat-select,
         .hide-on-capture .inline-time-input,
@@ -548,11 +558,17 @@
             cloneTextareas[idx].value = textarea.value;
         });
 
-        // 📱 고정 높이를 없애고, 오직 스케줄 알맹이 크기에만 핏되도록 래퍼 구조 수정!
         const wrapper = document.createElement('div');
         wrapper.className = 'capture-preset-wrapper';
         wrapper.id = 'capture-preset-target';
         wrapper.appendChild(clone);
+
+        // 🔥 [대변혁] 스케줄 아이템 데이터 수 파악 후 유연한 압축 클래스 부여
+        const itemsCount = clone.querySelectorAll('.schedule-item').length;
+        if (itemsCount >= 13) {
+            // 13개 이상 ~ 20개 돌파 시 'ultra-compact' 초압축 클래스를 붙여 마법처럼 한 화면에 축소 보관!
+            wrapper.classList.add('ultra-compact');
+        }
 
         const container = document.getElementById('preview-capture-container');
         container.innerHTML = '';
@@ -574,7 +590,7 @@
         
         html2canvas(target, {
             backgroundColor: "#faf9f5",
-            scale: 3,                  /* 깔끔하고 선명한 고화질 추출 */
+            scale: 3,                  /* 깨짐 방지 3배 고해상도 처리 */
             useCORS: true
         }).then(canvas => {
             const link = document.createElement('a');
