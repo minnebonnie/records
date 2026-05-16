@@ -36,7 +36,7 @@
         input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); background: #fff; }
         button { cursor: pointer; border: none; border-radius: 14px; font-weight: bold; transition: 0.2s; font-size: 0.95rem; }
         
-        /* 상큼한 과즙미 버튼 컬러 조합 */
+        /* 버튼 스타일 */
         .save-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; margin-top: 5px; box-shadow: 0 4px 12px rgba(74, 64, 53, 0.15); }
         .save-btn:active { background: #332b23; }
         
@@ -57,84 +57,117 @@
         .cat-manage-form input { margin: 0; padding: 10px; font-size: 0.85rem; border-radius: 10px; background: var(--bg); }
         .add-cat-btn { background: var(--text-sub); color: white; padding: 10px 14px; font-size: 0.85rem; border-radius: 10px; white-space: nowrap; }
 
-        /* 👶 아기 생일 설정 구역 */
+        /* 아기 생일 설정 구역 */
         .birthday-box { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
         .birthday-box input { background: var(--bg); margin: 5px 0 0 0; font-size: 0.9rem; font-weight: bold; text-align: center; }
 
-        /* 🗓️ 날짜 선택 및 내비게이션 화살표 + 오늘 버튼 존 */
+        /* 날짜 선택 및 내비게이션 */
         .date-picker-zone { display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 18px; }
         .nav-arrow-btn { background: var(--card-bg); border: 1px solid var(--border); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--text-sub); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .nav-arrow-btn:active { background: var(--sub-bg); }
         
         .date-input { padding: 9px 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.95rem; text-align: center; font-weight: bold; color: var(--text-main); background: var(--card-bg); width: 165px; margin: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.02); letter-spacing: -0.3px; }
-        
-        /* 상큼한 애플민트 톤의 오늘 버튼 */
         .today-btn { background: var(--mint); color: var(--text-main); height: 38px; padding: 0 14px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 2px 6px rgba(206, 229, 208, 0.4); }
-        .today-btn:active { opacity: 0.8; }
         
         /* 스케줄 리스트 및 캡쳐 구역 */
-        #capture-area { background: #ffffff; padding: 25px; border-radius: 26px; border: 1px solid var(--border); box-sizing: border-box; box-shadow: 0 10px 30px rgba(158, 142, 124, 0.04); }
-        .schedule-title { text-align: center; margin-bottom: 16px; color: var(--text-main); font-size: 1.1rem; font-weight: bold; border-bottom: 2px dashed var(--point); padding-bottom: 14px; letter-spacing: -0.5px; }
+        #capture-area { background: #ffffff; padding: 22px; border-radius: 26px; border: 1px solid var(--border); box-sizing: border-box; box-shadow: 0 10px 30px rgba(158, 142, 124, 0.04); }
+        .schedule-title { text-align: center; margin-bottom: 14px; color: var(--text-main); font-size: 1.1rem; font-weight: bold; border-bottom: 2px dashed var(--point); padding-bottom: 12px; letter-spacing: -0.5px; }
         
-        /* 디데이 표시 구역 스타일 */
-        .dday-container { display: block; text-align: center; font-size: 0.95rem; font-weight: bold; color: var(--accent); margin-top: 6px; }
+        .dday-container { display: block; text-align: center; font-size: 0.95rem; font-weight: bold; color: var(--accent); margin-top: 5px; }
         .title-dday { font-weight: 800; }
         .title-age { font-size: 0.85rem; color: var(--text-sub); margin-left: 6px; font-weight: 600; }
         
-        .schedule-list { display: flex; flex-direction: column; gap: 14px; }
-        .schedule-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #faf9f5; position: relative; }
+        .schedule-list { display: flex; flex-direction: column; gap: 12px; }
+        .schedule-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #faf9f5; position: relative; }
         .schedule-item:last-child { border-bottom: none; padding-bottom: 0; }
         
-        .item-emoji { font-size: 1.4rem; min-width: 30px; text-align: center; margin-top: 2px; }
+        .item-emoji { font-size: 1.35rem; min-width: 28px; text-align: center; margin-top: 1px; }
         .item-content { flex: 1; }
         .item-time-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; flex-wrap: wrap; }
         
-        /* ⏰ 입력용 텍스트 필드와 드롭다운 조화로운 믹스 매치 */
         .inline-time-input { font-size: 0.85rem; color: var(--text-sub); font-weight: bold; border: none; background: transparent; padding: 2px 0; width: 45px; margin: 0; text-align: center; }
         .inline-time-input:focus { background: var(--sub-bg); outline: none; border-radius: 4px; }
         
         .inline-ampm-select { font-size: 0.82rem; color: var(--text-sub); font-weight: bold; border: 1px solid var(--border); background: #fff; padding: 2px 4px; border-radius: 6px; width: auto; margin: 0; cursor: pointer; }
-        .inline-ampm-select:focus { outline: none; border-color: var(--accent); }
-        
-        /* 📸 이미지 캡쳐본 저장용 글자 (평소엔 숨겨둠) */
         .item-time-print-text { font-size: 0.85rem; color: var(--text-sub); font-weight: bold; display: none; }
         
-        .item-text { font-size: 0.95rem; color: var(--text-main); margin: 0; width: 100%; border: none; background: transparent; resize: none; padding: 0; line-height: 1.5; }
-        .item-text:focus { background: var(--sub-bg); outline: none; border-radius: 4px; }
-        
+        .item-text { font-size: 0.95rem; color: var(--text-main); margin: 0; width: 100%; border: none; background: transparent; resize: none; padding: 0; line-height: 1.45; }
         .delete-btn { background: none; font-size: 1rem; cursor: pointer; opacity: 0.25; padding: 0; margin-left: 5px; align-self: center; }
-        .delete-btn:hover { opacity: 0.8; }
-        
         .cat-select { font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: #fff; padding: 2px 4px; color: var(--text-sub); width: auto; margin: 0; font-weight: bold; }
 
         /* 하단 백업 존 */
         .backup-zone { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; padding: 15px; background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border); width: 100%; box-sizing: border-box; }
         .backup-btn { flex: 1; font-size: 0.75rem; padding: 10px 5px; border-radius: 10px; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: bold; white-space: nowrap; color: var(--text-sub); }
-        .backup-btn:hover { background: var(--sub-bg); }
 
-        /* 📸 불필요한 위아래 공백 제거! 카드 알맹이에 딱 핏되는 캡처 감싸개 */
+        /* 아이폰 스크린샷 맞춤형 컴팩트 감싸개 구역 */
         .capture-preset-wrapper {
-            width: 395px;          /* 아이폰 화면 폭에 딱 예쁘게 맞는 너비 */
+            width: 100%;
+            max-width: 395px;
             background-color: var(--bg);
             display: flex;
             flex-direction: column;
-            padding: 16px;         /* 바깥 테두리 여백 최소화 */
+            padding: 12px;
             box-sizing: border-box;
         }
-        
-        .capture-preset-wrapper #capture-area {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+        .capture-preset-wrapper #capture-area { width: 100%; display: flex; flex-direction: column; }
 
-        /* 📸 캡쳐/미리보기 시 테두리 지우고 글씨만 완성형으로 보여주기 */
+        /* 데이터가 아주 많을 때 글자크기 자동 압축 다이어트 */
+        .capture-preset-wrapper.ultra-compact .schedule-title { margin-bottom: 8px; padding-bottom: 8px; font-size: 1rem; }
+        .capture-preset-wrapper.ultra-compact .dday-container { font-size: 0.85rem; margin-top: 3px; }
+        .capture-preset-wrapper.ultra-compact #capture-area { padding: 14px; border-radius: 20px; }
+        .capture-preset-wrapper.ultra-compact .schedule-list { gap: 6px; }
+        .capture-preset-wrapper.ultra-compact .schedule-item { padding-bottom: 6px; gap: 8px; }
+        .capture-preset-wrapper.ultra-compact .item-emoji { font-size: 1.1rem; min-width: 22px; }
+        .capture-preset-wrapper.ultra-compact .item-time-print-text { font-size: 0.75rem; }
+        .capture-preset-wrapper.ultra-compact .item-text { font-size: 0.8rem; line-height: 1.3; }
+
+        /* 미리보기 캡쳐 전용 토글 처리 */
         .hide-on-capture .delete-btn,
         .hide-on-capture .cat-select,
         .hide-on-capture .inline-time-input,
         .hide-on-capture .inline-ampm-select { display: none !important; }
         .hide-on-capture .item-time-print-text { display: inline-block !important; margin-right: 8px; }
         .hide-on-capture .item-text { background: transparent !important; border: none !important; pointer-events: none; padding: 0; margin: 0; }
+
+        /* 📱 아이폰용 이미지 저장 전용 모달 스타일 */
+        .ios-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .ios-modal-guide {
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            background: rgba(255, 112, 112, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 188, 163, 0.3);
+        }
+        .ios-image-preview {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .ios-close-btn {
+            margin-top: 20px;
+            background: #ffffff;
+            color: var(--text-main);
+            padding: 12px 35px;
+            font-size: 0.95rem;
+            border-radius: 14px;
+        }
     </style>
 </head>
 <body>
@@ -144,7 +177,6 @@
     <div id="edit-view">
         <div class="card">
             <h2>👶 베이비 스케줄러</h2>
-            
             <input type="text" id="scheduleMemo" placeholder="내용을 입력하세요 (예: 잠, 이유식 50ml)">
             
             <h3>카테고리 선택</h3>
@@ -195,12 +227,21 @@
     <div id="preview-view">
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
             <button class="back-edit-btn" onclick="hidePreviewView()" style="flex: 1; margin-bottom: 0;">⬅️ 돌아가기</button>
-            <button class="real-download-btn" onclick="executeDownload()" style="flex: 1.5; margin-bottom: 0;">💾 이미지 저장</button>
+            <button class="real-download-btn" onclick="openIosSaveModal()" style="flex: 1.5; margin-bottom: 0;">💾 이미지 저장</button>
         </div>
-
         <div id="preview-capture-container" style="width: 100%; display: flex; justify-content: center; overflow: hidden;"></div>
     </div>
 
+</div>
+
+<div id="iosSaveModal" class="ios-modal">
+    <div class="ios-modal-guide">
+        💡 아이폰 포토앱 저장 방법<br>
+        아래 이미지를 <span style="color:var(--accent);">1초간 꾹~ 누른 뒤</span><br>
+        <b>[사진 앱에 저장]</b> 또는 <b>[사진에 추가]</b>를 눌러줘!
+    </div>
+    <img id="iosImageElement" class="ios-image-preview" alt="스케줄 이미지 스크린샷">
+    <button class="ios-close-btn" onclick="closeIosSaveModal()">닫기</button>
 </div>
 
 <script>
@@ -224,7 +265,6 @@
     function formatBirthInput(obj) {
         let val = obj.value.replace(/[^0-9]/g, '');
         let len = val.length;
-        
         if (len >= 5 && len <= 6) {
             obj.value = val.substring(0, 4) + '/' + val.substring(4);
         } else if (len >= 7) {
@@ -247,15 +287,12 @@
     function convertTo24HourFormat(time12) {
         let str = time12.toUpperCase().trim();
         if(!str.includes('AM') && !str.includes('PM')) return str;
-        
         const ampm = str.includes('PM') ? 'PM' : 'AM';
         let cleanTime = str.replace('AM', '').replace('PM', '').trim();
         let [hours, minutes] = cleanTime.split(':');
         hours = parseInt(hours);
-        
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
-        
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     }
 
@@ -273,16 +310,13 @@
     function getDDayString(targetDateStr) {
         let birthStr = localStorage.getItem('babyBirthDate');
         if (!birthStr || !targetDateStr) return "";
-
         birthStr = birthStr.replace(/\//g, '-');
         const birth = new Date(birthStr + "T00:00:00");
         const target = new Date(targetDateStr + "T00:00:00");
-
         if (isNaN(birth.getTime())) return "";
 
         const diffTime = target.getTime() - birth.getTime();
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
         let ddaySection = "";
         let ageSection = "";
 
@@ -290,7 +324,6 @@
             ddaySection = `<span class="title-dday">D+${diffDays + 1}</span>`;
             let start = new Date(birth);
             let months = 0;
-            
             while (true) {
                 let nextMonth = new Date(start);
                 nextMonth.setMonth(nextMonth.getMonth() + 1);
@@ -298,10 +331,8 @@
                 start = nextMonth;
                 months++;
             }
-            
             const remTime = target.getTime() - start.getTime();
             const remDays = Math.floor(remTime / (1000 * 60 * 60 * 24));
-            
             if (months === 0 && remDays === 0) {
                 ageSection = `<span class="title-age">(태어난 당일)</span>`;
             } else if (months === 0) {
@@ -315,7 +346,6 @@
             ddaySection = `<span class="title-dday">D${diffDays}</span>`;
             ageSection = `<span class="title-age">(출생 전)</span>`;
         }
-
         return `<span class="dday-container">${ddaySection}${ageSection}</span>`;
     }
 
@@ -344,24 +374,18 @@
         const emojiInput = document.getElementById('newCatEmoji');
         const nameInput = document.getElementById('newCatName');
         if(!emojiInput.value || !nameInput.value) return alert("이모지와 이름을 모두 입력해줘!");
-        
         categories.push({ emoji: emojiInput.value, name: nameInput.value });
         selectedCategoryIndex = categories.length - 1;
-        
-        emojiInput.value = '';
-        nameInput.value = '';
-        renderCategories();
-        displaySchedules();
+        emojiInput.value = ''; nameInput.value = '';
+        renderCategories(); displaySchedules();
         alert("새로운 카테고리가 등록되었어요 🌟");
     }
 
     function changeViewDate(days) {
         const dateInput = document.getElementById('viewDate');
         if (!dateInput.value) return;
-        
         const current = new Date(dateInput.value);
         current.setDate(current.getDate() + days);
-        
         dateInput.value = current.toISOString().split('T')[0];
         displaySchedules();
     }
@@ -372,15 +396,12 @@
 
         const now = new Date();
         const viewDateVal = document.getElementById('viewDate').value;
-        
         const rawTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         const timeStr = convertTo12HourFormat(rawTimeStr);
 
         let matchedIndex = selectedCategoryIndex;
         categories.forEach((cat, idx) => {
-            if(memoInput.value.includes(cat.name)) {
-                matchedIndex = idx;
-            }
+            if(memoInput.value.includes(cat.name)) matchedIndex = idx;
         });
 
         const newLog = {
@@ -393,10 +414,8 @@
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         if (!allLogs[viewDateVal]) allLogs[viewDateVal] = [];
         allLogs[viewDateVal].push(newLog);
-        
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         memoInput.value = '';
-        
         displaySchedules();
     }
 
@@ -406,11 +425,7 @@
 
         const d = viewDateVal.split('-');
         const ddayHtml = getDDayString(viewDateVal);
-        
-        document.getElementById('capture-title').innerHTML = `
-            <div>${d[0]}년 ${d[1]}월 ${d[2]}일 스케줄</div>
-            ${ddayHtml}
-        `;
+        document.getElementById('capture-title').innerHTML = `<div>${d[0]}년 ${d[1]}월 ${d[2]}일 스케줄</div>${ddayHtml}`;
 
         const allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         const dayLogs = allLogs[viewDateVal] || [];
@@ -428,18 +443,13 @@
         }
 
         const ampmOpts = ['AM', 'PM'];
-
         listZone.innerHTML = dayLogs.map((log) => {
             const catObj = categories.find(c => c.name === log.categoryName) || { emoji: '✨', name: log.categoryName };
-            const catOptions = categories.map(c => 
-                `<option value="${c.name}" ${c.name === log.categoryName ? 'selected' : ''}>${c.emoji} ${c.name}</option>`
-            ).join('');
-
+            const catOptions = categories.map(c => `<option value="${c.name}" ${c.name === log.categoryName ? 'selected' : ''}>${c.emoji} ${c.name}</option>`).join('');
             const displayTime = log.time.includes('M') ? log.time : convertTo12HourFormat(log.time);
 
             let cleanTime = displayTime.replace('AM','').replace('PM','').trim();
             let currAmpm = displayTime.includes('PM') ? 'PM' : 'AM';
-
             const inlineAmpmHtml = ampmOpts.map(o => `<option value="${o}" ${o===currAmpm?'selected':''}>${o}</option>`).join('');
 
             return `
@@ -448,16 +458,9 @@
                     <div class="item-content">
                         <div class="item-time-row">
                             <span class="item-time-print-text">${displayTime}</span>
-
                             <input type="text" class="inline-time-input" value="${cleanTime}" onchange="updateInlineTimeStr(${log.id}, this.value)">
-                            
-                            <select class="inline-ampm-select" onchange="updateInlineAmpm(${log.id}, this.value)">
-                                ${inlineAmpmHtml}
-                            </select>
-
-                            <select class="cat-select" onchange="updateInline(${log.id}, 'categoryName', this.value)">
-                                ${catOptions}
-                            </select>
+                            <select class="inline-ampm-select" onchange="updateInlineAmpm(${log.id}, this.value)">${inlineAmpmHtml}</select>
+                            <select class="cat-select" onchange="updateInline(${log.id}, 'categoryName', this.value)">${catOptions}</select>
                         </div>
                         <textarea class="item-text" rows="1" onchange="updateInline(${log.id}, 'memo', this.value)" oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px'">${log.memo}</textarea>
                     </div>
@@ -467,8 +470,7 @@
         }).join('');
         
         document.querySelectorAll('.item-text').forEach(el => {
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
+            el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px';
         });
     }
 
@@ -476,7 +478,6 @@
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
-
         dayLogs = dayLogs.map(log => {
             if(log.id === id) {
                 let currentAmpm = log.time.includes('PM') ? 'PM' : 'AM';
@@ -484,7 +485,6 @@
             }
             return log;
         });
-
         allLogs[viewDateVal] = dayLogs;
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
@@ -494,7 +494,6 @@
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
-
         dayLogs = dayLogs.map(log => {
             if(log.id === id) {
                 let cleanTime = log.time.replace('AM','').replace('PM','').trim();
@@ -502,7 +501,6 @@
             }
             return log;
         });
-
         allLogs[viewDateVal] = dayLogs;
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
@@ -512,14 +510,10 @@
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
-
         dayLogs = dayLogs.map(log => {
-            if(log.id === id) {
-                log[field] = value;
-            }
+            if(log.id === id) log[field] = value;
             return log;
         });
-
         allLogs[viewDateVal] = dayLogs;
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
@@ -530,7 +524,6 @@
         const viewDateVal = document.getElementById('viewDate').value;
         let allLogs = JSON.parse(localStorage.getItem('babySchedules') || '{}');
         let dayLogs = allLogs[viewDateVal] || [];
-
         allLogs[viewDateVal] = dayLogs.filter(log => log.id !== id);
         localStorage.setItem('babySchedules', JSON.stringify(allLogs));
         displaySchedules();
@@ -539,24 +532,22 @@
     function showPreviewView() {
         const originTarget = document.getElementById('capture-area');
         const clone = originTarget.cloneNode(true);
-        
         clone.classList.add('hide-on-capture');
         
         const originTextareas = originTarget.querySelectorAll('.item-text');
         const cloneTextareas = clone.querySelectorAll('.item-text');
-        originTextareas.forEach((textarea, idx) => {
-            cloneTextareas[idx].value = textarea.value;
-        });
+        originTextareas.forEach((textarea, idx) => { cloneTextareas[idx].value = textarea.value; });
 
-        // 📱 고정 높이를 없애고, 오직 스케줄 알맹이 크기에만 핏되도록 래퍼 구조 수정!
         const wrapper = document.createElement('div');
         wrapper.className = 'capture-preset-wrapper';
         wrapper.id = 'capture-preset-target';
         wrapper.appendChild(clone);
 
+        const itemsCount = clone.querySelectorAll('.schedule-item').length;
+        if (itemsCount >= 13) wrapper.classList.add('ultra-compact');
+
         const container = document.getElementById('preview-capture-container');
-        container.innerHTML = '';
-        container.appendChild(wrapper);
+        container.innerHTML = ''; container.appendChild(wrapper);
 
         document.getElementById('edit-view').style.display = 'none';
         document.getElementById('preview-view').style.display = 'block';
@@ -569,100 +560,81 @@
         displaySchedules();
     }
 
-    function executeDownload() {
+    /* 📸 [핵심 로직] 아이폰 사진첩 저장을 유도하는 팝업 생성 */
+    function openIosSaveModal() {
         const target = document.getElementById('capture-preset-target');
         
         html2canvas(target, {
             backgroundColor: "#faf9f5",
-            scale: 3,                  /* 깔끔하고 선명한 고화질 추출 */
+            scale: 3,
             useCORS: true
         }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `${document.getElementById('viewDate').value}_스케줄.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            
-            hidePreviewView();
+            const imgDataUrl = canvas.toDataURL('image/png');
+            document.getElementById('iosImageElement').src = imgDataUrl;
+            document.getElementById('iosSaveModal').style.display = 'flex';
         });
+    }
+
+    function closeIosSaveModal() {
+        document.getElementById('iosSaveModal').style.display = 'none';
+        hidePreviewView();
     }
 
     function exportBabyData() {
         const logs = localStorage.getItem('babySchedules') || '{}';
         if(logs === '{}') return alert("백업할 데이터가 비어있어요!");
-        const data = JSON.stringify({
-            schedules: JSON.parse(logs),
-            categories: categories
-        }, null, 2);
+        const data = JSON.stringify({ schedules: JSON.parse(logs), categories: categories }, null, 2);
         const blob = new Blob([data], {type: "application/json"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `베이비스케줄 백업_phone.json`;
-        a.click();
+        a.href = url; a.download = `베이비스케줄 백업_phone.json`; a.click();
     }
 
     function mergeBabyData(event) {
-        const file = event.target.files[0];
-        if(!file) return;
+        const file = event.target.files[0]; if(!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const imported = JSON.parse(e.target.result);
                 let currentSchedules = JSON.parse(localStorage.getItem('babySchedules') || '{}');
-                
                 let importedSchedules = imported.schedules || {};
                 for (let date in importedSchedules) {
-                    if (!currentSchedules[date]) {
-                        currentSchedules[date] = [];
-                    }
+                    if (!currentSchedules[date]) currentSchedules[date] = [];
                     const combined = [...importedSchedules[date], ...currentSchedules[date]];
                     currentSchedules[date] = Array.from(new Map(combined.map(item => [item.id, item])).values());
                 }
-                
                 localStorage.setItem('babySchedules', JSON.stringify(currentSchedules));
-                
                 if (imported.categories) {
                     imported.categories.forEach(impCat => {
-                        if (!categories.some(c => c.name === impCat.name)) {
-                            categories.push(impCat);
-                        }
+                        if (!categories.some(c => c.name === impCat.name)) categories.push(impCat);
                     });
                     localStorage.setItem('babyCategories', JSON.stringify(categories));
                 }
-
-                renderCategories();
-                displaySchedules();
+                renderCategories(); displaySchedules();
                 alert("기존 스케줄에 새로운 백업 데이터를 병합했어! 🔋");
             } catch(err) { alert("파일 형식을 다시 확인해주세요 ㅠㅠ"); }
         };
-        reader.readAsText(file);
-        event.target.value = '';
+        reader.readAsText(file); event.target.value = '';
     }
 
     function importBabyData(event) {
-        const file = event.target.files[0];
-        if(!file) return;
+        const file = event.target.files[0]; if(!file) return;
         if(!confirm("기존의 스케줄 내역이 전부 사라지고 새로 불러와져요. 진행할까요?")) return;
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const imported = JSON.parse(e.target.result);
-                if (imported.schedules) {
-                    localStorage.setItem('babySchedules', JSON.stringify(imported.schedules));
-                } else {
-                    localStorage.setItem('babySchedules', JSON.stringify(imported));
-                }
+                if (imported.schedules) localStorage.setItem('babySchedules', JSON.stringify(imported.schedules));
+                else localStorage.setItem('babySchedules', JSON.stringify(imported));
                 if (imported.categories) {
                     categories = imported.categories;
                     localStorage.setItem('babyCategories', JSON.stringify(categories));
                 }
-                renderCategories();
-                displaySchedules();
+                renderCategories(); displaySchedules();
                 alert("스케줄 데이터 전체 복구 성공! 🔋");
             } catch(err) { alert("파일 형식을 확인해주세요 ㅠㅠ"); }
         };
-        reader.readAsText(file);
-        event.target.value = '';
+        reader.readAsText(file); event.target.value = '';
     }
 </script>
 </body>
