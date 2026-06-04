@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>바니의 독서기록장 📖</title>
     
-    <!-- 🎨 깃허브 배포 최적화: 이모지 기반 SVG 파비콘 (따로 아이콘 파일 없어도 탭에 아이콘 생성!) -->
+    <!-- 🎨 깃허브 배포 최적화: 이모지 기반 SVG 파비콘 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
 
@@ -54,17 +54,30 @@
 
         /* ✍️ 와이드 필사 스페이스 전용 레이아웃 */
         .trans-space { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .trans-tab-group { display: flex; gap: 8px; margin-bottom: 20px; background: #e9ecef; padding: 5px; border-radius: 12px; max-width: 480px; }
-        .trans-tab { flex: 1; border: none; background: none; padding: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; border-radius: 9px; color: #495057; transition: 0.2s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+        
+        /* 🛠️ 필사 기록장 헤더 정렬용 컨테이너 */
+        .trans-filter-wrapper { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .trans-tab-group { display: flex; gap: 6px; background: #e9ecef; padding: 5px; border-radius: 12px; }
+        .trans-tab { border: none; background: none; padding: 10px 16px; font-size: 0.88rem; font-weight: 700; cursor: pointer; border-radius: 9px; color: #495057; transition: 0.2s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
         .trans-tab.active { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         
+        /* 🔍 책별 필터 선택상자 */
+        .book-filter-select { padding: 10px 15px; border-radius: 12px; border: 1px solid #ddd; background: #fff; font-size: 0.88rem; font-weight: bold; outline: none; color: #495057; cursor: pointer; max-width: 280px; }
+
         .trans-list { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .trans-item { background: #fff; border: 1px solid #e9ecef; padding: 20px; border-radius: 18px; position: relative; border-left: 5px solid #ced4da; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: 0.2s; }
         .trans-item.pinned { border-left-color: #ff5252; background: #fffbfb; }
-        .trans-meta { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; padding-right: 120px; }
-        .trans-text { font-size: 0.95rem; line-height: 1.6; color: #333; white-space: pre-wrap; word-break: break-all; }
         
-        .trans-actions { position: absolute; top: 18px; right: 18px; display: flex; gap: 8px; }
+        /* 🔥 날짜 겹침 방지 개선 레이아웃 */
+        .trans-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding-right: 150px; }
+        .trans-book-title { font-size: 0.95rem; font-weight: 700; color: #333; }
+        .trans-date-badge { font-size: 0.75rem; font-weight: normal; color: #888; background: #f1f3f5; padding: 2px 8px; border-radius: 6px; }
+        @media (max-width: 500px) { .trans-meta { padding-right: 0; margin-top: 35px; } }
+
+        /* ✨ 영어 단어가 중간에 끊기지 않고 묶어서 떨어지도록 스타일 최적화 */
+        .trans-text { font-size: 0.95rem; line-height: 1.6; color: #333; white-space: pre-wrap; word-break: keep-all; word-wrap: break-word; }
+        
+        .trans-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; z-index: 5; }
         .trans-icon-btn { border: none; background: #f1f3f5; cursor: pointer; font-size: 0.95rem; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #adb5bd; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
         .trans-icon-btn:hover { background: #e9ecef; }
         .trans-icon-btn.active { color: var(--star); background: #fff3cd; }
@@ -73,7 +86,7 @@
         .trans-btn-wrap { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
         .trans-mini-btn { font-size: 0.8rem; padding: 6px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-weight: bold; }
 
-        /* 🗓️ 캘린더 리팩토링 */
+        /* 🗓️ 캘린더 */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
         @media (max-width: 768px) { .calendar-grid { gap: 4px; } }
         .cal-day { background: white; border: 1px solid #eee; border-radius: 15px; min-height: 140px; padding: 10px; position: relative; box-sizing: border-box; }
@@ -85,10 +98,12 @@
         .trash-icon { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); border-radius: 6px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; cursor: pointer; color: white; font-size: 1.2rem; }
         .cal-book-container:hover .trash-icon { opacity: 1; }
 
-        /* 💾 백업 영역 */
-        .backup-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; display: flex; flex-direction: column; gap: 10px; }
-        .backup-btn { background: #fff; border: 1.5px solid #ddd; padding: 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-        .backup-btn:hover { background: #fafafa; border-color: #bbb; }
+        /* 💾 통합 백업 세션 */
+        .backup-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; display: flex; flex-direction: column; gap: 8px; }
+        .backup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        @media (max-width: 400px) { .backup-grid { grid-template-columns: 1fr; } }
+        .backup-btn { background: #fff; border: 1.5px solid #ddd; padding: 10px 4px; border-radius: 12px; font-size: 0.78rem; font-weight: 700; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: 0.2s; }
+        .backup-btn:hover { background: #f8f9fa; border-color: #bbb; }
 
         /* 📝 모달 창 구조 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
@@ -139,10 +154,15 @@
 
                     <div id="bookList" class="book-list"></div>
 
+                    <!-- 💾 데이터 관리 섹션 (백업, 통합, 복구) -->
                     <div class="backup-section">
-                        <button class="backup-btn" onclick="exportData()">💾 내 기록 저장하기 (백업)</button>
-                        <button class="backup-btn" onclick="document.getElementById('importFile').click()">📂 기록 불러오기 (복구)</button>
-                        <input type="file" id="importFile" style="display:none;" onchange="importData(event)">
+                        <div style="font-size:0.8rem; font-weight:bold; color:#777; margin-bottom:4px; text-align:center;">📊 데이터 통합 보관소</div>
+                        <div class="backup-grid">
+                            <button class="backup-btn" onclick="exportData()" title="현재 데이터를 파일로 내려받습니다.">💾 백업</button>
+                            <button class="backup-btn" onclick="triggerImport('merge')" style="border-color: #a8a29e; color: #1c1917;" title="기존 데이터에 새 파일 데이터를 합칩니다.">✨ 데이터 통합</button>
+                            <button class="backup-btn" onclick="triggerImport('overwrite')" style="color: var(--danger);" title="기존 데이터를 밀어버리고 파일 내용으로 교체합니다.">📂 전체 복구</button>
+                        </div>
+                        <input type="file" id="importFile" style="display:none;" onchange="handleImportFile(event)">
                     </div>
                 </div>
             </div>
@@ -174,7 +194,7 @@
                         </select>
                     </div>
                     <div>
-                        <label style="font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block;">2. 마음에 꽂힌 글귀 붙여넣기</label>
+                        <label style="font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block;">2. 마음에 콕 박힌 글귀 붙여넣기</label>
                         <textarea id="transInput" placeholder="복사한 문장을 통째로 편하게 붙여넣어 봐 바니! 📄" style="height: 100px; margin-bottom: 0; background: #fff; border: 1px solid #ddd;"></textarea>
                     </div>
                 </div>
@@ -187,12 +207,20 @@
             <div class="card">
                 <h2>📜 내가 차곡차곡 모은 필사 기록장</h2>
                 
-                <!-- 필사 정렬용 보기 세분화 탭 -->
-                <div class="trans-tab-group">
-                    <button class="trans-tab active" data-tab="all" onclick="setTransTab('all')">전체보기</button>
-                    <button class="trans-tab" data-tab="normal" onclick="setTransTab('normal')">일반</button>
-                    <button class="trans-tab" data-tab="pin" onclick="setTransTab('pin')">📌 핀 고정</button>
-                    <button class="trans-tab" data-tab="fav" onclick="setTransTab('fav')">❤️ 즐겨찾기</button>
+                <!-- 필사 정렬용 필터 레이어 컨테이너 -->
+                <div class="trans-filter-wrapper">
+                    <!-- 1. 상태 탭 스위치 -->
+                    <div class="trans-tab-group">
+                        <button class="trans-tab active" data-tab="all" onclick="setTransTab('all')">전체보기</button>
+                        <button class="trans-tab" data-tab="normal" onclick="setTransTab('normal')">일반</button>
+                        <button class="trans-tab" data-tab="pin" onclick="setTransTab('pin')">📌 핀 고정</button>
+                        <button class="trans-tab" data-tab="fav" onclick="setTransTab('fav')">❤️ 즐겨찾기</button>
+                    </div>
+                    
+                    <!-- 2. 책별 상세 소팅 필터 -->
+                    <select id="transBookFilter" class="book-filter-select" onchange="renderTranscriptions()">
+                        <option value="all">📚 모든 책 필사 모아보기</option>
+                    </select>
                 </div>
 
                 <!-- 필사 로그 리스트 노출 레이어 -->
@@ -201,7 +229,7 @@
         </div>
     </div>
 
-    <!-- 상세 설정 팝업 모달 구조 유지 -->
+    <!-- 상세 설정 팝업 모달 구조 -->
     <div id="bookModal" class="modal">
         <div class="modal-content">
             <div style="display:flex; gap:20px; align-items:center;">
@@ -237,8 +265,8 @@
     let tempStatus = 'reading';
     let selectedFileData = null;
     let currentTransTab = 'all';
+    let importMode = 'merge';
 
-    // 💡 깃허브 배포 최적화: 플레이스홀더 이미지를 고해상도 웹 이미지 주소로 변경
     const DEFAULT_COVER = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=300&auto=format&fit=crop';
 
     window.onload = () => { renderAll(); };
@@ -374,10 +402,12 @@
         renderTranscriptions();
     }
 
+    /* 🎨 UI 렌더링 함수군 */
     function renderTranscriptions() {
         const listContainer = document.getElementById('transcriptionList');
         if (!listContainer) return;
 
+        // 1. 기본 상태구분 탭 필터링 수행
         let filtered = transcriptions.filter(t => {
             if (currentTransTab === 'pin') return t.isPinned;
             if (currentTransTab === 'fav') return t.isFav;
@@ -385,15 +415,23 @@
             return true;
         });
 
-        if(currentTransTab === 'all') {
-            filtered.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+        // 2. 책별 상세 소팅 필터 조건 추가 필터링 수행
+        const bookFilterSelect = document.getElementById('transBookFilter');
+        if (bookFilterSelect) {
+            const selectedBookId = bookFilterSelect.value;
+            if (selectedBookId !== 'all') {
+                filtered = filtered.filter(t => t.bookId === parseInt(selectedBookId));
+            }
         }
+
+        // ✨ [정렬 기준 수정]: 언제나 생성된 시간(id 큰 순서 = 최신순)으로 완벽하게 고정 나열!
+        filtered.sort((a, b) => b.id - a.id);
 
         listContainer.innerHTML = filtered.map(t => `
             <div class="trans-item ${t.isPinned ? 'pinned' : ''}" id="trans-item-${t.id}">
                 <div class="trans-meta">
-                    <span>📖 ${t.bookTitle}</span>
-                    <span style="color:#aaa; font-weight:normal;">${t.date}</span>
+                    <span class="trans-book-title">📖 ${t.bookTitle}</span>
+                    <span class="trans-date-badge">${t.date}</span>
                 </div>
                 
                 <div class="trans-text" id="trans-display-${t.id}">${t.text}</div>
@@ -413,7 +451,7 @@
                     <button class="trans-icon-btn" onclick="deleteTrans(${t.id})" title="삭제" style="color:#ef476f;">🗑️</button>
                 </div>
             </div>
-        `).join('') || '<p style="text-align:center; color:#ccc; font-size:0.9rem; padding:40px; grid-column: 1/-1;">선택한 탭에 해당되는 필사 로그가 비어있어 바니! ✍️</p>';
+        `).join('') || '<p style="text-align:center; color:#ccc; font-size:0.9rem; padding:40px; grid-column: 1/-1;">해당 조건에 만족하는 필사 로그가 비어있어 바니! ✍️</p>';
     }
 
     function renderAll() {
@@ -445,6 +483,13 @@
             const currentValue = selectBox.value;
             selectBox.innerHTML = '<option value="">▼ 어떤 책을 필사할까?</option>' + books.map(b => `<option value="${b.id}">📖 ${b.title}</option>`).join('');
             selectBox.value = currentValue;
+        }
+
+        const transFilterSelect = document.getElementById('transBookFilter');
+        if (transFilterSelect) {
+            const currentFilterValue = transFilterSelect.value;
+            transFilterSelect.innerHTML = '<option value="all">📚 모든 책 필사 모아보기</option>' + books.map(b => `<option value="${b.id}">📖 ${b.title}</option>`).join('');
+            transFilterSelect.value = books.some(b => b.id === parseInt(currentFilterValue)) ? currentFilterValue : 'all';
         }
 
         renderCalendar();
@@ -550,17 +595,57 @@
         a.click();
     }
 
-    function importData(e) {
+    function triggerImport(mode) {
+        importMode = mode;
+        document.getElementById('importFile').click();
+    }
+
+    function handleImportFile(e) {
         const file = e.target.files[0];
         if(!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const data = JSON.parse(ev.target.result);
-            books = data.books || []; 
-            readings = data.readings || [];
-            transcriptions = data.transcriptions || [];
-            save(); renderAll();
-            alert("모든 기록 복구 완료! 💜");
+            try {
+                const incoming = JSON.parse(ev.target.result);
+                
+                if(importMode === 'overwrite') {
+                    if(!confirm("⚠️ 경고: 정말 기존 서재 기록을 전부 지우고 파일 안의 데이터로 싹 복구할까 바니?")) return;
+                    books = incoming.books || [];
+                    readings = incoming.readings || [];
+                    transcriptions = incoming.transcriptions || [];
+                    alert("기존 기록 위에 깔끔하게 복구 완료! 💜");
+                } else {
+                    const incomingBooks = incoming.books || [];
+                    const incomingReadings = incoming.readings || [];
+                    const incomingTranscriptions = incoming.transcriptions || [];
+
+                    incomingBooks.forEach(inBook => {
+                        if(!books.some(b => b.id === inBook.id || b.title === inBook.title)) {
+                            books.push(inBook);
+                        }
+                    });
+                    
+                    incomingReadings.forEach(inRead => {
+                        if(!readings.some(r => r.date === inRead.date && r.bookId === inRead.bookId)) {
+                            readings.push(inRead);
+                        }
+                    });
+
+                    incomingTranscriptions.forEach(inTrans => {
+                        if(!transcriptions.some(t => t.text === inTrans.text)) {
+                            transcriptions.push(inTrans);
+                        }
+                    });
+
+                    alert("🎉 흩어져있던 기존 데이터와 새 데이터를 하나로 안전하게 합쳤어 바니!");
+                }
+
+                save(); 
+                renderAll();
+                e.target.value = '';
+            } catch(err) {
+                alert("🚨 올바른 파일 형식이 아닌 것 같아. 다시 한번 확인해줘!");
+            }
         };
         reader.readAsText(file);
     }
