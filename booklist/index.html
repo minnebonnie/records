@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>바니의 독서기록장 📖</title>
     
-    <!-- 🎨 깃허브 배포 최적화: 이모지 기반 SVG 파비콘 -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon.png">
 
     <style>
         :root { --primary: #6f42c1; --bg: #f8f9fa; --card-bg: #ffffff; --star: #ffc107; --reading: #3a86ff; --done: #06d6a0; --giveup: #ef476f; --danger: #ef476f; }
@@ -74,7 +74,7 @@
         .trans-date-badge { font-size: 0.75rem; font-weight: normal; color: #888; background: #f1f3f5; padding: 2px 8px; border-radius: 6px; }
         @media (max-width: 500px) { .trans-meta { padding-right: 0; margin-top: 35px; } }
 
-        /* ✨ 영어 단어가 중간에 끊기지 않고 묶어서 떨어지도록 스타일 최적화 */
+        /* 영어 단어가 중간에 끊기지 않고 묶어서 떨어지도록 스타일 최적화 */
         .trans-text { font-size: 0.95rem; line-height: 1.6; color: #333; white-space: pre-wrap; word-break: keep-all; word-wrap: break-word; }
         
         .trans-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; z-index: 5; }
@@ -120,13 +120,11 @@
 </head>
 <body>
 
-    <!-- 🗺️ 앞뒤 네비게이션 스위칭 탭 버튼 -->
     <div class="nav-bar">
         <button id="btnMainView" class="nav-btn active" onclick="switchView('main')">📚 나의 서재 & 캘린더</button>
         <button id="btnTransView" class="nav-btn" onclick="switchView('trans')">✍️ 독서 필사 스페이스</button>
     </div>
 
-    <!-- 1️⃣ 메인 서재 및 캘린더 화면 뷰 패널 -->
     <div id="mainViewPanel" class="view-panel active">
         <div class="dashboard">
             <div class="left-panel">
@@ -154,7 +152,6 @@
 
                     <div id="bookList" class="book-list"></div>
 
-                    <!-- 💾 데이터 관리 섹션 (백업, 통합, 복구) -->
                     <div class="backup-section">
                         <div style="font-size:0.8rem; font-weight:bold; color:#777; margin-bottom:4px; text-align:center;">📊 데이터 통합 보관소</div>
                         <div class="backup-grid">
@@ -180,10 +177,8 @@
         </div>
     </div>
 
-    <!-- 2️⃣ 독서 필사 독립 화면 뷰 패널 -->
     <div id="transViewPanel" class="view-panel">
         <div class="trans-space">
-            <!-- 문장 작성 카드 -->
             <div class="card">
                 <h2>✍️ 오늘 마음에 들어온 책 속 한 문장</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px;">
@@ -203,13 +198,10 @@
                 </div>
             </div>
 
-            <!-- 저장 로그 타임라인 내역 카드 -->
             <div class="card">
                 <h2>📜 내가 차곡차곡 모은 필사 기록장</h2>
                 
-                <!-- 필사 정렬용 필터 레이어 컨테이너 -->
                 <div class="trans-filter-wrapper">
-                    <!-- 1. 상태 탭 스위치 -->
                     <div class="trans-tab-group">
                         <button class="trans-tab active" data-tab="all" onclick="setTransTab('all')">전체보기</button>
                         <button class="trans-tab" data-tab="normal" onclick="setTransTab('normal')">일반</button>
@@ -217,19 +209,16 @@
                         <button class="trans-tab" data-tab="fav" onclick="setTransTab('fav')">❤️ 즐겨찾기</button>
                     </div>
                     
-                    <!-- 2. 책별 상세 소팅 필터 -->
                     <select id="transBookFilter" class="book-filter-select" onchange="renderTranscriptions()">
                         <option value="all">📚 모든 책 필사 모아보기</option>
                     </select>
                 </div>
 
-                <!-- 필사 로그 리스트 노출 레이어 -->
                 <div id="transcriptionList" class="trans-list"></div>
             </div>
         </div>
     </div>
 
-    <!-- 상세 설정 팝업 모달 구조 -->
     <div id="bookModal" class="modal">
         <div class="modal-content">
             <div style="display:flex; gap:20px; align-items:center;">
@@ -402,12 +391,10 @@
         renderTranscriptions();
     }
 
-    /* 🎨 UI 렌더링 함수군 */
     function renderTranscriptions() {
         const listContainer = document.getElementById('transcriptionList');
         if (!listContainer) return;
 
-        // 1. 기본 상태구분 탭 필터링 수행
         let filtered = transcriptions.filter(t => {
             if (currentTransTab === 'pin') return t.isPinned;
             if (currentTransTab === 'fav') return t.isFav;
@@ -415,7 +402,6 @@
             return true;
         });
 
-        // 2. 책별 상세 소팅 필터 조건 추가 필터링 수행
         const bookFilterSelect = document.getElementById('transBookFilter');
         if (bookFilterSelect) {
             const selectedBookId = bookFilterSelect.value;
@@ -424,7 +410,6 @@
             }
         }
 
-        // ✨ [정렬 기준 수정]: 언제나 생성된 시간(id 큰 순서 = 최신순)으로 완벽하게 고정 나열!
         filtered.sort((a, b) => b.id - a.id);
 
         listContainer.innerHTML = filtered.map(t => `
